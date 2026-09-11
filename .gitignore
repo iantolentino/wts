@@ -1,0 +1,7 @@
+/config/config.local.php
+/.local/
+/storage/private/*
+!/storage/private/.htaccess
+/tests/artifacts/
+/_brain/sessions/manifests/
+*.log

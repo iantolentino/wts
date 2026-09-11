@@ -1,0 +1,130 @@
+// Run with NODE_PATH pointing to the tools folder containing Playwright.
+// Uses only this local application's fictional QA records. Never production.
+const { chromium } = require('playwright');
+const fs = require('node:fs');
+const path = require('node:path');
+const assert = require('node:assert/strict');
+const root = path.resolve(__dirname, '..');
+const accounts = JSON.parse(fs.readFileSync(path.join(root, '.local/test-accounts.json'), 'utf8'));
+const base = 'http://127.0.0.1:8030';
+const artifact = path.join(root, '.local/qa'); fs.mkdirSync(artifact, { recursive: true });
+const run = Date.now().toString();
+const results = [];
+function check(name, value) { assert.ok(value, name); results.push(name); console.log('PASS ' + name); }
+(async () => {
+  const browser = await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});
+  const context = await browser.newContext({viewport:{width:1440,height:1000}});
+  const page = await context.newPage();
+  const errors=[];page.on('pageerror',e=>errors.push(e.message));
+  async function login(role, ctx=context) {
+    const p = ctx === context ? page : await ctx.newPage();
+    await p.goto(base+'/login.php');
+    await p.getByLabel('Username',{exact:true}).fill(accounts[role].username);
+    await p.getByLabel('Password',{exact:true}).fill(accounts[role].password);
+    await Promise.all([p.waitForURL('**/dashboard.php'),p.getByRole('button',{name:'Sign in',exact:true}).click()]);
+    return p;
+  }
+  try {
+    await page.goto(base+'/login.php');
+    await page.screenshot({path:path.join(artifact,'login.png'),fullPage:true});
+    check('Login has retained Strata Staff logo', await page.getByAltText('Strata Staff Global').count()===1);
+    check('Private configuration denied', (await context.request.get(base+'/config/config.example.php')).status()===403);
+    check('Brain denied over HTTP', (await context.request.get(base+'/_brain/CURRENT_STATE.md')).status()===403);
+    await login('tl');
+    check('TL can sign in', await page.getByRole('heading',{name:'Overview',exact:true}).count()===1);
+    await page.screenshot({path:path.join(artifact,'dashboard.png'),fullPage:true});
+    for(const route of ['staff.php','history.php','departments.php','reports.php','index.php']) {
+      const response=await page.goto(base+'/'+route);check(route+' loads',response.status()===200 && !((await page.content()).includes('Unable to complete this request')));
+    }
+    check('TL cannot administer accounts',(await context.request.get(base+'/users.php')).status()===403);
+    await page.goto(base+'/employee-form.php');
+    await page.getByLabel('Employee code *',{exact:true}).fill('QA-'+run);
+    await page.getByLabel('Full name *',{exact:true}).fill('QA Employee '+run);
+    await page.getByLabel('Position *',{exact:true}).fill('Support Associate');
+    await page.getByLabel('Shift schedule and timezone *',{exact:true}).fill('Mon–Fri, 8 AM–5 PM, Asia/Manila');
+    await page.locator('select[name=department_id]').selectOption({label:'Customer Support'});
+    await page.getByLabel('Team *',{exact:true}).fill('QA Morning Team');
+    await page.locator('select[name=tl_id]').selectOption(String(accounts.tl.id));
+    await page.locator('select[name=employment_status]').selectOption('new');
+    const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Manila'});
+    await page.getByLabel('Start date *',{exact:true}).fill(today);
+    await page.getByLabel('History note *',{exact:true}).fill('QA onboarding entry.');
+    const dataUrl=await page.evaluate(()=>{const c=document.createElement('canvas');c.width=64;c.height=64;const x=c.getContext('2d');x.fillStyle='#528d99';x.fillRect(0,0,64,64);x.fillStyle='white';x.font='24px sans-serif';x.fillText('QA',10,40);return c.toDataURL('image/png');});
+    await page.locator('input[name=photo]').setInputFiles({name:'qa-photo.png',mimeType:'image/png',buffer:Buffer.from(dataUrl.split(',')[1],'base64')});
+    await Promise.all([page.waitForURL('**/employee.php?id=*'),page.getByRole('button',{name:'Create employee',exact:true}).click()]);
+    const staffId = new URL(page.url()).searchParams.get('id');
+    check('Employee created with history',(await page.locator('body').innerText()).includes('QA onboarding entry.'));
+    const photo=await context.request.get(base+'/employee-photo.php?id='+staffId);
+    check('Photo uploaded and served as JPEG',photo.status()===200 && photo.headers()['content-type']==='image/jpeg');
+    await page.getByRole('link',{name:'Edit profile',exact:true}).click();
+    const staleVersion=await page.locator('input[name=version]').inputValue();
+    const oldToken=await page.locator('input[name=csrf_token]').inputValue();
+    await page.getByLabel('Position *',{exact:true}).fill('Senior Support Associate');
+    await page.locator('select[name=department_id]').selectOption({label:'Operations'});
+    await page.getByLabel('Team *',{exact:true}).fill('QA Operations Team');
+    await page.locator('select[name=tl_id]').selectOption(String(accounts.tl2.id));
+    await page.locator('select[name=employment_status]').selectOption('active');
+    await page.getByLabel('History note *',{exact:true}).fill('QA promotion and team transfer.');
+    const fields=await page.locator('form').evaluate(f=>Object.fromEntries(new FormData(f)));
+    await Promise.all([page.waitForURL('**/employee.php?id=*'),page.getByRole('button',{name:'Save profile & history',exact:true}).click()]);
+    check('Manual profile update preserves before/after history',(await page.locator('body').innerText()).includes('Support Associate → Senior Support Associate'));
+    const stale=await context.request.post(base+'/employee-form.php?id='+staffId,{form:{...fields,version:staleVersion,csrf_token:oldToken}});
+    check('Stale profile save rejected',(await stale.text()).includes('Another TL changed this profile'));
+    check('CSRF rejected',(await context.request.post(base+'/employee.php?id='+staffId,{form:{history_note:'should not save',effective_date:today}})).status()===419);
+    await page.getByLabel('Note',{exact:true}).fill('Earlier context captured manually.');
+    await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Add note',exact:true}).click()]);
+    check('History-only note saved',(await page.locator('body').innerText()).includes('Earlier context captured manually.'));
+    await page.screenshot({path:path.join(artifact,'employee.png'),fullPage:true});
+    await page.goto(base+'/staff.php?q='+encodeURIComponent('QA-'+run));
+    check('Staff search filters by code',await page.getByRole('link',{name:'QA Employee '+run,exact:true}).count()===1);
+    await page.screenshot({path:path.join(artifact,'staff.png'),fullPage:true});
+    await page.goto(base+'/departments.php');
+    check('Department transfer shown',(await page.locator('body').innerText()).includes('QA promotion and team transfer.'));
+    await page.goto(base+'/create-ticket.php?staff_id='+staffId);
+    await page.getByLabel('Subject *',{exact:true}).fill('QA request '+run);
+    await page.locator('select[name=department_id]').selectOption({label:'Operations'});
+    await page.locator('select[name=category]').selectOption('General Request');
+    await page.getByLabel('Issue details *',{exact:true}).fill('Verify the local request and resolution workflow.');
+    await page.locator('select[name=assignee_id]').selectOption(String(accounts.tl.id));
+    await Promise.all([page.waitForURL('**/ticket.php?id=*'),page.getByRole('button',{name:'Create ticket',exact:true}).click()]);
+    const ticketId=new URL(page.url()).searchParams.get('id');
+    check('Ticket linked to employee',await page.locator('a[href="employee.php?id='+staffId+'"]').count()===1);
+    await page.locator('select[name=status]').selectOption('closed');
+    await page.getByRole('button',{name:'Save changes',exact:true}).click();
+    check('Closing requires resolution',(await page.locator('body').innerText()).includes('Add a resolution before closing'));
+    await page.getByLabel('Resolution (required to close)',{exact:true}).fill('QA request resolved.');
+    await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Save changes',exact:true}).click()]);
+    check('Ticket closes with resolution',(await page.locator('body').innerText()).includes('QA request resolved.'));
+    await page.getByLabel('Add a comment',{exact:true}).fill('QA confirmation comment.');
+    await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Post comment',exact:true}).click()]);
+    check('Ticket comment saved',(await page.locator('body').innerText()).includes('QA confirmation comment.'));
+    for(const type of ['staff','tickets','history','report']){
+      const response=await context.request.get(base+'/export.php?type='+type+'&from='+today+'&to='+today);
+      check(type+' CSV download',response.status()===200 && response.headers()['content-type'].includes('text/csv') && (await response.body()).length>30);
+    }
+    await page.goto(base+'/employee-form.php?id='+staffId);
+    await page.locator('select[name=employment_status]').selectOption('exited');
+    await page.getByLabel('Exit date (exited staff only)',{exact:true}).fill(today);
+    await page.getByLabel('History note *',{exact:true}).fill('QA exit completed.');
+    await Promise.all([page.waitForURL('**/employee.php?id=*'),page.getByRole('button',{name:'Save profile & history',exact:true}).click()]);
+    await page.goto(base+'/staff.php?status=exited&q='+encodeURIComponent('QA-'+run));
+    check('Exited staff list includes manual exit',await page.getByRole('link',{name:'QA Employee '+run,exact:true}).count()===1);
+    const mgmtCtx=await browser.newContext();const mgmt=await login('management',mgmtCtx);
+    check('Management cannot create employees',(await mgmtCtx.request.get(base+'/employee-form.php')).status()===403);
+    check('Management cannot create tickets',(await mgmtCtx.request.get(base+'/create-ticket.php')).status()===403);
+    await mgmt.goto(base+'/reports.php');check('Management can view reports',await mgmt.getByRole('heading',{name:'Reports & exports',exact:true}).count()===1);
+    const viewerCtx=await browser.newContext();await login('viewer',viewerCtx);
+    check('Viewer cannot read staff',(await viewerCtx.request.get(base+'/staff.php')).status()===403);
+    check('Viewer cannot read employee photos',(await viewerCtx.request.get(base+'/employee-photo.php?id='+staffId)).status()===403);
+    check('Viewer cannot export staff',(await viewerCtx.request.get(base+'/export.php?type=staff')).status()===403);
+    const adminCtx=await browser.newContext();const admin=await login('admin',adminCtx);
+    await admin.goto(base+'/users.php');check('Admin can manage accounts',await admin.getByRole('heading',{name:'Accounts & TLs',exact:true}).count()===1);
+    await page.setViewportSize({width:390,height:844});
+    await page.goto(base+'/dashboard.php');
+    await page.screenshot({path:path.join(artifact,'mobile.png'),fullPage:true});
+    check('Mobile page has no horizontal overflow',await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+    check('No browser runtime errors',errors.length===0);
+    fs.writeFileSync(path.join(artifact,'results.json'),JSON.stringify({passed:results.length,results,staffId,ticketId,date:new Date().toISOString()},null,2));
+    console.log('Completed '+results.length+' checks. QA fixture staff '+staffId+' and ticket '+ticketId+' retained for inspection.');
+  } finally { await browser.close(); }
+})().catch(e=>{console.error(e);process.exitCode=1;});

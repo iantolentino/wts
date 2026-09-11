@@ -1,0 +1,16 @@
+/* The copied base theme uses body padding; Wheettle positions its own rail. */
+body.wts:not(.auth-page){padding:0}
+body.wts.login-page{padding:40px}
+.wts .page>.content-shell>section.panel{margin:0 0 22px;padding:24px;background:#fff;border:1px solid var(--wts-border);border-radius:12px;box-shadow:0 2px 3px #18303803}
+.wts .page>.content-shell>section.panel.flush{padding:0}
+.wts .page>.content-shell>section.hero-strip{margin:0 0 24px;padding:27px 30px;background:#eaf2f2;border:1px solid #d5e5e6;border-radius:12px;box-shadow:none}
+.wts .page>.content-shell>section h2{font-size:18px;margin:0 0 8px}
+.wts .page>.content-shell>section.hero-strip h2{font-size:25px;margin:5px 0}
+.wts .timeline-item{display:block;justify-content:normal;gap:0;padding:0 0 24px 24px;border:0;border-left:1px solid #d8e4e6;background:transparent;overflow-wrap:anywhere}
+.wts .timeline-item:last-child{padding-bottom:0}
+.wts .timeline-item a{text-decoration:none;color:#285e6d}
+.wts .skip-link{position:absolute;left:10px;top:-80px;z-index:100;background:white;padding:10px}
+.wts .skip-link:focus{top:10px}
+@media(max-width:760px){.wts .topbar{min-height:0}.wts .nav{padding-top:0}.wts .app-header{right:auto}.wts .app-header-actions{margin-left:auto}body.wts.login-page{padding:24px}.wts .page>.content-shell>section.panel{padding:20px}.wts .page>.content-shell>section.panel.flush{padding:0}.wts .page>.content-shell>section.hero-strip{padding:21px}.wts .page>.content-shell>section.hero-strip h2{font-size:22px}}
+@media print{body.wts:not(.auth-page){padding:0}}
+@media(max-width:760px){.wts .sidebar-bottom{display:flex;flex-wrap:wrap;gap:16px;padding:8px 10px 0;margin:0;font-size:11px}.wts .sidebar-bottom .muted{display:none}}
