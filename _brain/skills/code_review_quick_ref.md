@@ -170,4 +170,3 @@ Consult:
 - `interaction/assumptions.md` — What not to assume
 
 Don't guess. Ask or defer.
-

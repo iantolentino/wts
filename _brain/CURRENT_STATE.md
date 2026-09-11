@@ -22,11 +22,11 @@ Complete and verify Wheettle ticketing/manual staff history, then commit and pus
 ## Blockers and bugs
 
 - No failing application checks. First setup's duplicate permission seed fixed and database initialized successfully. 36 workflow checks passed plus PHP lint and final desktop/mobile checks. Source: .local/qa/results.json (local evidence), tests/browser.cjs and tests/visual.cjs.
-- GitHub publication still requires a push attempt; initial gh authentication was absent.
+- Initial implementation commit: 9c95ba0. GitHub push attempted and failed: no credentials; noninteractive Git could not read Username. Remote backup has NOT been created. Owner must authenticate with gh auth login before retrying push.
 
 ## Immediate next action
 
-Commit verified app/brain, attempt push, then report local test URL/account and exact GitHub status.
+After the owner signs into GitHub, use portable Git, configure gh as its credential helper if needed, and push main to origin. Then verify the remote SHA. Local app is ready for user testing.
 
 ## Last significant decision
 

@@ -1,4 +1,4 @@
-# Session Handoff
+﻿# Session Handoff
 
 ## Objective
 
@@ -20,11 +20,11 @@ Verified local MVP. Test URL: http://127.0.0.1:8030/login.php. TL username demo.
 
 - TLs manually manage all Wheettle employee records; profiles are distinct from login accounts. Optimistic versions protect simultaneous updates.
 - Immutable history snapshots preserve department/team/position/shift/TL changes and dates. Photo bytes are authenticated and re-encoded.
-- See decisions/ADR-001-wheettle-foundation.md and architecture/WHEettle.md. Older framework example decisions are not Wheettle requirements.
+- See decisions/ADR-001-wheettle-foundation.md and architecture/wheettle.md. Older framework example decisions are not Wheettle requirements.
 
 ## Blockers
 
-- GitHub CLI initially unauthenticated. Commit/push status must be checked before claiming a remote backup.
+- Implementation committed locally as 9c95ba0. Push to origin main failed because GitHub credentials are absent. No remote backup yet. User must complete gh auth login; never collect a token in chat.
 
 ## Relevant Files
 
@@ -32,7 +32,7 @@ Verified local MVP. Test URL: http://127.0.0.1:8030/login.php. TL username demo.
 
 ## Next Action
 
-Finish local commits and push; if authentication blocks publication, ask the owner to sign in without collecting a token in chat.
+After owner authentication: prepend C:/Users/Admin/Downloads/wts-build-tools/git/cmd to the process PATH; run gh auth setup-git, push main to origin, and verify remote commit. Do not rerun database setup or repeat passing workflow tests unless code changes.
 
 ## Warnings
 
@@ -42,7 +42,7 @@ Finish local commits and push; if authentication blocks publication, ask the own
 
 ## Git Baseline
 
-- Base commit: not yet committed
+- Base commit: 9c95ba06fdd5561d4a1654e552f3bddb8f1d3f98
 - Branch: main
-- Working tree at handoff: new files pending first commit
-- Verification: 36 browser workflow checks, final visual checks, application PHP lint passed.
+- Working tree at handoff: has uncommitted changes
+- Verification: 36 browser workflow checks, final desktop/mobile checks, PHP lint and credential exclusion scan passed. A subsequent handoff-only commit records this baseline; GitHub push remains blocked on authentication.

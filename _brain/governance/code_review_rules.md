@@ -42,7 +42,7 @@ env/
 **/*.spec.js
 **/__tests__/**
 **/tests/**
-jest.config.* 
+jest.config.*
 vitest.config.*
 karma.conf.*
 mocha.opts
@@ -258,4 +258,3 @@ Defer if:
 - Current scale doesn't need it
 - Architectural design is already prepared for scaling
 - Hook/abstraction exists for future refactoring
-

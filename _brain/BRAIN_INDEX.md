@@ -8,7 +8,7 @@ Use this index as Question -> Knowledge Needed -> File. Do not search the whole 
 | How do I continue safely? | Last work snapshot | `sessions/LATEST_HANDOFF.md` |
 | What happened today? | Current activity | `daily/YYYY-MM-DD.md` |
 | Why was a technical choice made? | Decision record | `decisions/ADR-*.md` |
-| How is the system designed? | Wheettle architecture | `architecture/WHEettle.md` |
+| How is the system designed? | Wheettle architecture | `architecture/wheettle.md` |
 | Which context fits this task? | Intent profile | `intents/<intent>.md` |
 | Which specialized instructions fit this task? | Skill route | `tools/skill-router.ps1` |
 | Where is this task in execution? | Workflow gate | `tools/workflow-gate.ps1` |
