@@ -24,7 +24,7 @@ Verified local MVP. Test URL: http://127.0.0.1:8030/login.php. TL username demo.
 
 ## Blockers
 
-- Implementation committed locally as 9c95ba0. Push to origin main failed because GitHub credentials are absent. No remote backup yet. User must complete gh auth login; never collect a token in chat.
+- None. Owner completed GitHub device authorization as iantolentino. HTTPS authentication configured, main pushed, remote/local SHA match verified on 2026-09-11.
 
 ## Relevant Files
 
@@ -32,7 +32,7 @@ Verified local MVP. Test URL: http://127.0.0.1:8030/login.php. TL username demo.
 
 ## Next Action
 
-After owner authentication: prepend C:/Users/Admin/Downloads/wts-build-tools/git/cmd to the process PATH; run gh auth setup-git, push main to origin, and verify remote commit. Do not rerun database setup or repeat passing workflow tests unless code changes.
+Await owner testing feedback and implement the requested changes. Repository https://github.com/iantolentino/wts now contains the app and brain. Do not rerun database setup or repeat passing workflow tests unless code changes.
 
 ## Warnings
 
@@ -42,7 +42,7 @@ After owner authentication: prepend C:/Users/Admin/Downloads/wts-build-tools/git
 
 ## Git Baseline
 
-- Base commit: 9c95ba06fdd5561d4a1654e552f3bddb8f1d3f98
+- Base commit: 7c464d92de307cd98f805b4370b7297940c8537b
 - Branch: main
 - Working tree at handoff: has uncommitted changes
-- Verification: 36 browser workflow checks, final desktop/mobile checks, PHP lint and credential exclusion scan passed. A subsequent handoff-only commit records this baseline; GitHub push remains blocked on authentication.
+- Verification: main pushed and remote/local SHA matched; local login HTTP 200. Prior 36 workflow checks and PHP lint remain valid; this session changed only brain records.

@@ -7,6 +7,6 @@ Verified against http://127.0.0.1:8030 with fictional local records.
 - All application PHP files passed php -l.
 - Review: prepared queries, escaped user content, protected photo route, image validation/re-encoding, atomic profile/ticket changes, optimistic versions, authorization, and CSV formula escaping inspected.
 - Local test passwords, sessions, logs and screenshots are ignored and were explicitly checked for exclusion from the Git commit.
-- No production deployment or GitHub upload verified. Initial push blocked on missing GitHub authentication; follow CURRENT_STATE.md.
+- GitHub upload verified on 2026-09-11 after owner authorization; remote main matched local 7c464d92de307cd98f805b4370b7297940c8537b. No production deployment. Follow CURRENT_STATE.md for subsequent progress.
 
 Local-only evidence: .local/qa/results.json and screenshot files. Reproducible tests: tests/browser.cjs and tests/visual.cjs. Browser workflow tests retain QA records for inspection.
