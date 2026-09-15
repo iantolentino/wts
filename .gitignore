@@ -5,3 +5,6 @@
 /tests/artifacts/
 /_brain/sessions/manifests/
 *.log
+~$*
+# Superseded local Word draft; publish the revised document.
+/documentation/Wheettle-Functionality-Draft.docx

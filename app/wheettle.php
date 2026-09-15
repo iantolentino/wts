@@ -35,36 +35,12 @@ function enum_options(array $values, string $selected): void {
 }
 function tls(): array { return query("SELECT u.id,u.full_name FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 AND r.slug='team-leader' ORDER BY u.full_name")->fetchAll(); }
 function staff_record(int $id, bool $lock = false): array {
-    $row = query('SELECT s.*,d.name AS department_name,u.full_name AS tl_name,EXISTS(SELECT 1 FROM staff_photos p WHERE p.staff_id=s.id) AS has_photo FROM staff_directory s LEFT JOIN departments d ON d.id=s.department_id LEFT JOIN users u ON u.id=s.tl_id WHERE s.id=?' . ($lock ? ' FOR UPDATE' : ''), [$id])->fetch();
+    $row = query('SELECT s.*,d.name AS department_name,u.full_name AS tl_name FROM staff_directory s LEFT JOIN departments d ON d.id=s.department_id LEFT JOIN users u ON u.id=s.tl_id WHERE s.id=?' . ($lock ? ' FOR UPDATE' : ''), [$id])->fetch();
     if (!$row) { http_response_code(404); exit('Employee not found.'); }
     return $row;
 }
 function staff_snapshot(array $row): array {
     return array_intersect_key($row, array_flip(array_merge(STAFF_FIELDS, ['department_name','tl_name'])));
-}
-function employee_avatar(array $row, bool $large = false): void {
-    $class = $large ? 'employee-avatar large' : 'employee-avatar';
-    if (!empty($row['has_photo'])) echo '<img class="'.$class.'" src="employee-photo.php?id='.(int)$row['id'].'&amp;v='.(int)$row['version'].'" alt="'.e($row['full_name']).'" loading="lazy">';
-    else echo '<span class="'.$class.'" aria-hidden="true">'.e(mb_strtoupper(mb_substr($row['full_name'],0,1))).'</span>';
-}
-function photo_upload(): ?string {
-    if (!isset($_FILES['photo']) || $_FILES['photo']['error'] === UPLOAD_ERR_NO_FILE) return null;
-    $file = $_FILES['photo'];
-    if (!function_exists('imagecreatefromstring')) throw new InvalidArgumentException('Photo uploads require the PHP GD extension. Ask the administrator to enable it.');
-    if (!is_int($file['error']) || $file['error'] !== UPLOAD_ERR_OK || !is_uploaded_file($file['tmp_name'])) throw new InvalidArgumentException('The photo upload failed. Please try again.');
-    if ($file['size'] > 2 * 1024 * 1024) throw new InvalidArgumentException('Choose a JPG, PNG or WebP photo under 2 MB.');
-    $info = @getimagesize($file['tmp_name']);
-    if (!$info || !in_array($info['mime'], ['image/jpeg','image/png','image/webp'], true) || $info[0] > 5000 || $info[1] > 5000 || $info[0]*$info[1] > 12000000) throw new InvalidArgumentException('Choose a valid JPG, PNG or WebP image, up to 12 megapixels.');
-    $source = @imagecreatefromstring(file_get_contents($file['tmp_name']));
-    if (!$source) throw new InvalidArgumentException('This image could not be read.');
-    $ratio = min(1, 600 / max($info[0],$info[1]));
-    $width = max(1,(int)round($info[0]*$ratio)); $height = max(1,(int)round($info[1]*$ratio));
-    $target = imagecreatetruecolor($width,$height);
-    imagefill($target,0,0,imagecolorallocate($target,255,255,255));
-    imagecopyresampled($target,$source,0,0,0,0,$width,$height,$info[0],$info[1]);
-    ob_start(); imagejpeg($target,null,85); $data = ob_get_clean();
-    imagedestroy($source); imagedestroy($target);
-    return $data;
 }
 function save_employee(?int $id, array $actor): int {
     $data = [];
@@ -84,7 +60,6 @@ function save_employee(?int $id, array $actor): int {
     if ($effective>date('Y-m-d')) throw new InvalidArgumentException('History changes must take effect today or earlier.');
     $note=input('history_note',10000);
     if ($note==='') throw new InvalidArgumentException('Add a history note explaining this entry.');
-    $photo=photo_upload();
     db()->beginTransaction();
     try {
         $before=$id ? staff_record($id,true) : null;
@@ -96,11 +71,7 @@ function save_employee(?int $id, array $actor): int {
         $columns=array_keys($data); $values=array_values($data);
         if ($id) query('UPDATE staff_directory SET '.implode(',',array_map(fn($key)=>$key.'=?',$columns)).',is_active=?,version=version+1 WHERE id=?',array_merge($values,[$data['employment_status']==='exited'?0:1,$id]));
         else { query('INSERT INTO staff_directory('.implode(',',$columns).',is_active) VALUES('.implode(',',array_fill(0,count($columns)+1,'?')).')',array_merge($values,[$data['employment_status']==='exited'?0:1])); $id=(int)db()->lastInsertId(); }
-        if ($photo!==null) query('INSERT INTO staff_photos(staff_id,image_data) VALUES(?,?) ON DUPLICATE KEY UPDATE image_data=VALUES(image_data)',[$id,$photo]);
-        elseif (input('remove_photo',1)==='1') query('DELETE FROM staff_photos WHERE staff_id=?',[$id]);
         $after=staff_record($id);
-        if ($photo!==null) $note.=' [Photo uploaded]';
-        elseif (input('remove_photo',1)==='1') $note.=' [Photo removed]';
         query('INSERT INTO staff_history(staff_id,actor_id,event_type,effective_date,notes,before_data,after_data) VALUES(?,?,?,?,?,?,?)',[$id,$actor['id'],$before?'updated':'created',$effective,$note,$before?json_encode(staff_snapshot($before),JSON_THROW_ON_ERROR):null,json_encode(staff_snapshot($after),JSON_THROW_ON_ERROR)]);
         db()->commit(); return $id;
     } catch(Throwable $error) { if(db()->inTransaction()) db()->rollBack(); if($error instanceof PDOException && $error->getCode()==='23000') throw new InvalidArgumentException('That employee code already exists, or a selected record is no longer available.'); throw $error; }

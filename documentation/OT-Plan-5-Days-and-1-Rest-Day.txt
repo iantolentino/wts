@@ -1,0 +1,6 @@
+SUPERSEDED WORK ALLOCATION
+
+Use Development-Work-Plan-Day-0-to-Day-9.txt for the latest owner-requested plan.
+It separates documentation (Day 0), schema, backend functions, attachments/reporting, UI, functional testing, full local testing, release preparation and deployment (Day 9).
+
+See Completion-and-Progress-Guide.md for verified delivery status. Actual dates and hours are not certified by the plan. Live deployment remains pending.

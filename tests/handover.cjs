@@ -1,0 +1,33 @@
+// Local fictional fixtures only. Run after browser.cjs; newly created account is deactivated.
+const {chromium}=require('playwright');
+const fs=require('node:fs');const path=require('node:path');const assert=require('node:assert/strict');
+const {randomBytes}=require('node:crypto');
+const root=path.resolve(__dirname,'..'),base='http://127.0.0.1:8030';
+const accounts=JSON.parse(fs.readFileSync(path.join(root,'.local/test-accounts.json')));
+const fixture=JSON.parse(fs.readFileSync(path.join(root,'.local/qa/results.json')));
+const results=[];function check(name,value){assert.ok(value,name);results.push(name);console.log('PASS '+name);}
+function csv(text){const rows=[];let row=[],cell='',quoted=false;text=text.replace(/^\uFEFF/,'');for(let i=0;i<text.length;i++){const c=text[i];if(c==='"'){if(quoted&&text[i+1]==='"'){cell+='"';i++;}else quoted=!quoted;}else if(c===','&&!quoted){row.push(cell);cell='';}else if(c==='\n'&&!quoted){row.push(cell.replace(/\r$/,''));rows.push(row);row=[];cell='';}else cell+=c;}if(cell||row.length){row.push(cell);rows.push(row);}return rows;}
+(async()=>{const browser=await chromium.launch({executablePath:'C:/Program Files/Google/Chrome/Application/chrome.exe',headless:true});let admin,username,created=false;
+try{
+async function login(account){const p=await browser.newPage();await p.goto(base+'/login.php');await p.locator('[name=username]').fill(account.username);await p.locator('[name=password]').fill(account.password);await Promise.all([p.waitForNavigation(),p.getByRole('button',{name:'Sign in',exact:true}).click()]);return p;}
+admin=await login(accounts.admin);await admin.goto(base+'/users.php');username='qa.handover.'+Date.now();const initial=randomBytes(24).toString('hex'),password=randomBytes(24).toString('hex');
+await admin.locator('[name=full_name]').fill('QA Handover Account');await admin.locator('[name=username]').fill(username);await admin.locator('[name=role]').selectOption('management');await admin.locator('[name=password]').fill(initial);await Promise.all([admin.waitForNavigation(),admin.getByRole('button',{name:'Create account',exact:true}).click()]);
+check('Admin creates fictional account',await admin.getByRole('row').filter({hasText:username}).count()===1);created=true;
+const user=await login({username,password:initial});check('First login requires password change',user.url().includes('change-password.php'));
+await user.locator('[name=current_password]').fill(initial);await user.locator('[name=new_password]').fill(password);await user.locator('[name=confirm_password]').fill(password);await Promise.all([user.waitForNavigation(),user.getByRole('button',{name:'Update password',exact:true}).click()]);check('Password change grants dashboard access',user.url().includes('dashboard.php'));
+let row=admin.getByRole('row').filter({hasText:username});await Promise.all([admin.waitForNavigation(),row.getByRole('button',{name:'Deactivate',exact:true}).click()]);await user.goto(base+'/reports.php');check('Deactivation revokes active session',user.url().includes('login.php'));
+row=admin.getByRole('row').filter({hasText:username});await Promise.all([admin.waitForNavigation(),row.getByRole('button',{name:'Activate',exact:true}).click()]);const again=await login({username,password});check('Reactivated account can sign in',again.url().includes('dashboard.php'));
+const tl=await login(accounts.tl);await tl.goto(base+'/ticket.php?id='+fixture.ticketId);const old=await tl.locator('form').filter({has:tl.locator('[name=version]')}).evaluate(f=>Object.fromEntries(new FormData(f)));
+await tl.locator('[name=resolution]').fill('');await tl.locator('[name=status]').selectOption('open');await Promise.all([tl.waitForNavigation(),tl.getByRole('button',{name:'Save changes',exact:true}).click()]);await tl.reload();check('Closed ticket can reopen',await tl.locator('[name=status]').inputValue()==='open');
+const stale=await tl.request.post(base+'/ticket.php?id='+fixture.ticketId,{form:old});check('Stale ticket update rejected',/another|reload/i.test(await stale.text())&&await tl.locator('[name=status]').inputValue()==='open');
+await tl.locator('[name=resolution]').fill('QA request resolved after reopening.');await tl.locator('[name=status]').selectOption('closed');await Promise.all([tl.waitForNavigation(),tl.getByRole('button',{name:'Save changes',exact:true}).click()]);await tl.reload();check('Reopened ticket closes again',await tl.locator('[name=status]').inputValue()==='closed');
+const today=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Manila'});
+const getCsv=async(type)=>{const r=await tl.request.get(base+'/export.php?type='+type+'&from='+today+'&to='+today);assert.equal(r.status(),200);return csv(await r.text());};
+const staffResponse=await tl.request.get(base+'/export.php?type=staff');const staff=csv(await staffResponse.text()).slice(1);const report=Object.fromEntries((await getCsv('report')).slice(1));
+check('Staff report status totals reconcile with full staff CSV',['new','active','exited'].every(s=>Number(report['Current '+({new:'New staff',active:'Active',exited:'Exited'}[s])])===staff.filter(r=>r[9]===s).length));
+check('Starter and exit totals reconcile with dates',Number(report['Started in period'])===staff.filter(r=>r[7]===today).length&&Number(report['Exited in period'])===staff.filter(r=>r[8]===today).length);
+const tickets=(await getCsv('tickets')).slice(1);check('Ticket period status totals reconcile with CSV',['open','in_progress','pending','closed'].every(s=>Number(report['Tickets created in period / '+({open:'Open',in_progress:'In progress',pending:'Pending',closed:'Closed'}[s])])===tickets.filter(r=>r[6]===s).length));
+await tl.setViewportSize({width:390,height:844});for(const route of ['staff.php','index.php','history.php','departments.php','reports.php','employee-form.php','create-ticket.php']){await tl.goto(base+'/'+route);check('Mobile fits '+route,await tl.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));}
+}finally{if(created&&admin){await admin.goto(base+'/users.php');const row=admin.getByRole('row').filter({hasText:username});const button=row.getByRole('button',{name:'Deactivate',exact:true});if(await button.count())await Promise.all([admin.waitForNavigation(),button.click()]);check('QA account left deactivated',await admin.getByRole('row').filter({hasText:username}).getByRole('button',{name:'Activate',exact:true}).count()===1);}await browser.close();}
+fs.writeFileSync(path.join(root,'.local/qa/handover-results.json'),JSON.stringify({date:new Date().toISOString(),passed:results.length,results},null,2));console.log('Completed '+results.length+' handover checks.');
+})().catch(e=>{console.error(e);process.exitCode=1;});

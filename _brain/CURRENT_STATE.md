@@ -1,35 +1,18 @@
-# Current State
+﻿# Current State
 
-> Compact active state only. Do not write a project history here. Every important fact should name its source when one exists.
+## Current scope
+Local ticketing MVP with creation-time file attachments; employee photos retired. Owner requested commit/push to https://github.com/iantolentino/wts.git and a realistic Day 0-9 work plan. Live deployment is pending hosting details, not claimed complete.
 
-## Current objective
+## Verified 2026-09-15
+- 45 workflow checks, 19 supplementary checks, desktop/mobile visual checks and 31 PHP syntax checks passed.
+- Additive attachment migration applied locally; no data reset. Up to 3 files, 2 MB each; format/content validation, private database bytes and authenticated ticket-access downloads.
+- Employee photo inputs/display removed; old endpoint returns 404. Legacy photo data preserved.
+- DOCX and source updated; internal references replaced by plain progress-guide wording. Canonical file: documentation/Wheettle-Functionality-Draft-Revised.docx.
+- documentation/Development-Work-Plan-Day-0-to-Day-9.txt is the current proposed allocation. Actual dates/hours are unverified; Day 8 target preparation and Day 9 live deployment are pending.
+- User handover, completion guide and deployment checklist available. Owner acceptance is pending.
 
-Local Wheettle MVP verified and published to iantolentino/wts. Ready for owner testing and feedback.
+## Operations
+http://127.0.0.1:8030/login.php; username demo.tl; passwords only in ignored .local/test-accounts.json. Restart tools/start-local.ps1. Existing installs run tools/migrate-ticket-files.php; fresh setup includes migration 002. Never reinitialize existing wheettle_ticketing database or modify cng-ticketing.
 
-## Active work
-
-- Feature/project: Wheettle (WTS), C:/xampp/htdocs/wheettle-ticketing.
-- Implementation state: local MVP implemented and verified. Source CNG project untouched.
-- Relevant files/modules: SPEC.md, tools/setup-local.php, tools/start-local.ps1, tests/, app/wheettle.php.
-
-## Important facts
-
-- Keep Strata Staff logo and favicon. No Jamesons/CNG records, credentials or integrations. Manual TL updates; no automation. Source: SPEC.md, owner conversation.
-- Local database: wheettle_ticketing; verified loopback URL: http://127.0.0.1:8030/login.php. PHP GD enabled per test-server process. tools/start-local.ps1 restarts the server.
-- Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Origin points to owner-authorized https://github.com/iantolentino/wts.git.
-- GitHub CLI authenticated as iantolentino; HTTPS Git authentication configured. Local test credentials remain only in ignored .local/test-accounts.json; never publish them.
-
-## Blockers and bugs
-
-- No failing application checks. First setup's duplicate permission seed fixed and database initialized successfully. 36 workflow checks passed plus PHP lint and final desktop/mobile checks. Source: .local/qa/results.json (local evidence), tests/browser.cjs and tests/visual.cjs.
-- Authentication blocker resolved on 2026-09-11. Pushed main and verified remote SHA matched local 7c464d92de307cd98f805b4370b7297940c8537b before this handoff update. Repository: https://github.com/iantolentino/wts. No production deployment.
-
-## Immediate next action
-
-Collect owner feedback from local testing. Continue from the requested change; do not rebuild or rerun database initialization. Commit/push further authorized progress with credentials excluded.
-
-## Last significant decision
-
-Reuse source CSS, auth/ticket helpers and sanitized relational schema; employee history uses immutable before/after snapshots with optimistic edit versions. Source: app/wheettle.php and database/001_wheettle.sql.
-
-Last updated: 2026-09-11
+## Next
+Commit/push reviewed changes and verify remote revision; collect owner feedback and hosting details. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.

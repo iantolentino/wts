@@ -1,48 +1,24 @@
-﻿# Session Handoff
+# Session Handoff
 
 ## Objective
+Owner authorized commit/push of completed local work to iantolentino/wts. Latest steering removes employee photos, adds ticket attachments and expands the work plan to Day 0-9. Production deployment is not authorized to a defined target yet; no target supplied.
 
-Deliver Wheettle ticketing and manual staff history with local user testing and GitHub backup at iantolentino/wts.
+## Delivered and verified
+- Ticket creation accepts up to three 2 MB files; supported formats PDF/TXT/CSV/JPG/PNG/WebP/DOCX/XLSX. Private database storage, validated content, forced authenticated downloads following ticket visibility.
+- Migration 002 applied locally and wired into fresh setup; rerunnable CLI helper. Legacy photo data preserved while controls/display removed and endpoint retired.
+- 45 workflow checks + 19 supplementary checks + desktop/mobile visual checks + 31 PHP syntax checks passed. Fictional staff/ticket 7 retained; supplementary accounts deactivated.
+- Updated functionality DOCX/Markdown, ten-day TXT, completion/progress guide, user guide and deployment checklist. Actual OT dates/hours and owner acceptance not certified. Day 8 target-specific preparation and Day 9 deployment/live testing pending.
+- Canonical Word file is Wheettle-Functionality-Draft-Revised.docx. Legacy open Word draft ignored. DOCX XML validated; no brain/Nexus references; Word rendered layout not certified.
 
-## Completed
+## Access and next step
+http://127.0.0.1:8030/login.php; demo.tl. Passwords only in .local/test-accounts.json. Start tools/start-local.ps1. For existing checkouts run tools/migrate-ticket-files.php; never rerun database initialization. Commit/push and verify remote SHA, then request hosting details when deployment is scheduled.
 
-- Created C:/xampp/htdocs/wheettle-ticketing, cloned empty wts remote, installed current AI Nexus brain.
-- Adapted CNG design/helpers/schema, retained Strata Staff logo/favicon, removed source staff records and old branding. Original source untouched.
-- Implemented employee photos, new/active/exited staff, TL/position/shift assignments, manual dated history, department/team transfers, ticket workflows, filters, CSV exports, reports and account management.
-- Initialized isolated wheettle_ticketing database with fictional demo and QA fixtures; random passwords only in ignored .local/test-accounts.json.
-- Passed 36 browser workflow checks, final desktop/mobile checks and application PHP lint. Fixed duplicate schema seed and inherited layout collisions.
-
-## Current State
-
-Verified local MVP. Test URL: http://127.0.0.1:8030/login.php. TL username demo.tl; admin demo.admin; management demo.management. Read the ignored credential file only for local testing; do not publish passwords. Restart server using tools/start-local.ps1. No production deployment.
-
-## Decisions
-
-- TLs manually manage all Wheettle employee records; profiles are distinct from login accounts. Optimistic versions protect simultaneous updates.
-- Immutable history snapshots preserve department/team/position/shift/TL changes and dates. Photo bytes are authenticated and re-encoded.
-- See decisions/ADR-001-wheettle-foundation.md and architecture/wheettle.md. Older framework example decisions are not Wheettle requirements.
-
-## Blockers
-
-- None. Owner completed GitHub device authorization as iantolentino. HTTPS authentication configured, main pushed, remote/local SHA match verified on 2026-09-11.
-
-## Relevant Files
-
-- SPEC.md, README.md, CURRENT_STATE.md, tests/browser.cjs, tests/visual.cjs, tools/start-local.ps1.
-
-## Next Action
-
-Await owner testing feedback and implement the requested changes. Repository https://github.com/iantolentino/wts now contains the app and brain. Do not rerun database setup or repeat passing workflow tests unless code changes.
-
-## Warnings
-
-- Never edit or delete C:/xampp/htdocs/cng-ticketing or connect Wheettle to its database.
-- Never commit .local, config/config.local.php, credentials, sessions or real staff data.
-- Always provide the local test URL and a local test account in handoffs to the owner. Do not claim GitHub push succeeded without verifying it.
+## Constraints
+Source cng-ticketing and its database stay untouched. Do not commit credentials, sessions or real data. Current work plan: documentation/Development-Work-Plan-Day-0-to-Day-9.txt.
 
 ## Git Baseline
 
-- Base commit: 7c464d92de307cd98f805b4370b7297940c8537b
+- Base commit: 10ec3c498be819ae96389044c1fc33618f7bd1ca
 - Branch: main
 - Working tree at handoff: has uncommitted changes
-- Verification: main pushed and remote/local SHA matched; local login HTTP 200. Prior 36 workflow checks and PHP lint remain valid; this session changed only brain records.
+- Verification: [tests/checks run, or not yet run]

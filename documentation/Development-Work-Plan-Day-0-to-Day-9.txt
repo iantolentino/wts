@@ -1,0 +1,127 @@
+WHEETTLE TICKETING SYSTEM - TEN-DAY DEVELOPMENT WORK PLAN
+Day 0 through Day 9 | Draft allocation prepared 15 September 2026
+
+This is a proposed sequence from initial planning through live deployment. Each day groups related technical work and its expected output. Effort depends on requirements, defects, feedback and environment readiness; the wording does not certify long hours or completed overtime. Record actual dates, work periods and results. Local implementation already exists; deployment/live acceptance remain pending.
+
+DAY 0 - REQUIREMENTS AND FUNCTIONALITY DOCUMENTATION
+Reason: To consolidate the system requirements, define project scope and user roles, map ticket-handling and employee-reference workflows, specify file-attachment and reporting requirements, document access rules and validation criteria, identify open questions, and prepare and review the functionality document and progress guide as the basis for development.
+Tasks:
+- Define intended users, ticket ownership, statuses, priorities and closure rules.
+- List employee-reference data, history, departments and account requirements.
+- Specify attachment formats, size/count limits and download access.
+- Map screens, reports, export fields, acceptance checks and exclusions.
+- Format the DOCX, review consistency and establish the progress guide.
+Output: Functionality DOCX, requirements checklist and initial progress guide.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 1 - DETAILED DATABASE SCHEMA DESIGN AND CREATION
+Reason: To design and create the database schema by defining tables, columns, data types, required and optional values, primary and foreign keys, unique constraints, indexes and relationships for users, permissions, employee references, departments, tickets, assignments, comments, activity history and file attachments; prepare migration scripts and fictional seed records, then validate referential integrity and database connectivity.
+Tasks:
+- Map relationships and determine which records own or reference each item.
+- Define identifiers, timestamps, statuses, text lengths and edit-version fields.
+- Design attachment metadata and private binary storage linked to tickets.
+- Add constraints and indexes for filtering, history and ticket lookups.
+- Prepare fresh-install and additive migration scripts; review data preservation.
+- Check table creation, foreign keys, sample inserts and query connectivity.
+Output: Versioned schema/migrations, relationship notes and fictional fixtures.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 2 - SHARED BACKEND, AUTHENTICATION AND ACCOUNT FUNCTIONS
+Reason: To develop the shared application functions for configuration, database access, session handling, sign-in and sign-out, password changes, role permissions, account creation and activation, input validation, request protection and error handling, and connect these functions into a consistent application foundation before building individual business workflows.
+Tasks:
+- Implement database helpers and application initialization.
+- Build authentication, password hashing and mandatory first-password change.
+- Implement account creation, activation/deactivation and session revocation.
+- Add role checks, CSRF protection and common validation/error handling.
+- Check restricted actions and prepare reusable helpers for feature modules.
+Output: Shared backend and working account-access functions.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 3 - TICKET, EMPLOYEE-REFERENCE AND HISTORY FUNCTIONS
+Reason: To develop business functions for ticket creation, employee linking, assignment, priority and status updates, comments, resolution, closure and reopening, together with employee-reference maintenance and manually recorded changes; implement validation, transactional saves, activity records and conflicting-edit protection so related information remains consistent through each workflow.
+Tasks:
+- Implement ticket creation and reference generation.
+- Add ownership, status, priority, comment and resolution operations.
+- Implement employee fields, assignments, employment dates and history notes.
+- Record before/after changes with actor and effective/recorded dates.
+- Add transaction rollback and stale-save handling for concurrent edits.
+Output: Core ticket, employee-reference and history functions.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 4 - FILE ATTACHMENTS, SEARCH AND REPORTING FUNCTIONS
+Reason: To implement ticket file uploads, filename/content validation, count and size limits, private storage and authenticated downloads; develop ticket and staff filtering, pagination, dashboard aggregates, date-based reports and CSV exports, and connect these functions to the core records while checking permission boundaries and report definitions.
+Tasks:
+- Accept supported files during ticket creation and save them transactionally.
+- Reject unsupported, malformed, oversized and excessive uploads.
+- List attachments on ticket details and enforce ticket access on downloads.
+- Build search/filter queries, pagination and dashboard summary queries.
+- Implement report metrics and CSV generation with consistent date semantics.
+Output: Attachment, search, reporting and export functions.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 5 - USER INTERFACE DEVELOPMENT AND WORKFLOW INTEGRATION
+Reason: To build and connect the user-facing screens for login, dashboard, ticket lists, ticket creation with attachments, ticket details, comments, employee references, history, reports and account administration; implement navigation, role-aware controls, form feedback, empty states and responsive layouts, and check that users can move through complete workflows without losing context.
+Tasks:
+- Build shared page layouts, navigation, forms and data tables.
+- Add attachment selection, limits guidance and download links.
+- Connect actions to backend functions and display validation feedback.
+- Apply role-aware controls and consistent labels/status indicators.
+- Check mobile tables, form spacing, error states and workflow links.
+Output: Integrated desktop/mobile interface ready for functional testing.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 6 - DATABASE AND FUNCTIONAL TESTING
+Reason: To test database operations and backend functions using controlled fictional records, verify required fields, duplicate handling, relationships, dates, transactions and edit conflicts, exercise ticket and account transitions, check file-upload rejection and download permissions, and reconcile report/export results with known records while documenting and correcting confirmed defects.
+Tasks:
+- Test create/update/history operations and invalid data paths.
+- Check permissions, CSRF protection and account activation behavior.
+- Verify stale saves, ticket resolution requirements and reopening.
+- Test attachment type, count, size, integrity and access boundaries.
+- Compare staff and ticket report totals with exported data and dates.
+Output: Functional test results, defect records and targeted retest evidence.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 7 - COMPLETE LOCAL SYSTEM TESTING AND CORRECTIONS
+Reason: To run end-to-end scenarios across all connected modules and user roles in the local environment, review desktop and mobile usability, check navigation and validation messages, inspect runtime errors, investigate integration issues, apply confirmed corrections and repeat affected tests, then consolidate screenshots and results into the local verification summary.
+Tasks:
+- Exercise complete ticket and employee-reference scenarios with each role.
+- Test attachment creation and downloads as part of the full ticket lifecycle.
+- Check reports, exports and history after data changes.
+- Review desktop/mobile screens and browser/server errors.
+- Run regression checks and record remaining limitations and feedback items.
+Output: Verified local build, regression results and local test summary.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 8 - RELEASE PREPARATION, DOCUMENTATION AND DEPLOYMENT PLANNING
+Reason: To review the release contents, complete startup and user guidance, update the functionality document and progress guide, verify repository exclusions, commit tested changes, and prepare the deployment checklist covering hosting prerequisites, database migration, configuration, private-file access, HTTPS, backups and recovery, with unresolved environment decisions recorded before release.
+Tasks:
+- Review changed code, documentation and test evidence.
+- Confirm credentials, local files and real staff data are excluded from Git.
+- Commit/push the reviewed build and verify the repository revision.
+- Prepare user guidance, known limitations and handover materials.
+- Confirm hosting, domain, database, access and backup arrangements.
+- Define deployment checks and a recovery procedure for the target environment.
+Output: Versioned release, handover package and deployment checklist.
+Actual date/time/hours: __________  Results/evidence: __________
+
+DAY 9 - DEPLOYMENT AND FINAL LIVE TESTING
+Status: PENDING - hosting target and deployment access are not yet provided.
+Reason: To deploy the reviewed build to the agreed hosting environment, configure application and database access, apply the required migration, verify HTTPS and private-file restrictions, run live smoke tests for authentication, ticket creation, attachments, downloads, history and reporting, resolve environment-specific issues, and document the final deployment result and handover for owner acceptance.
+Tasks:
+- Back up the target as applicable and confirm the recovery procedure.
+- Deploy the reviewed commit and configure environment-specific settings.
+- Apply required migrations and confirm runtime/database prerequisites.
+- Verify authorized and unauthorized access, including attachment downloads.
+- Run approved live test scenarios and inspect application/server errors.
+- Record the live URL, deployed revision, test results and remaining concerns.
+Output: Deployment record and live verification evidence, subject to successful execution.
+Actual date/time/hours: __________  Results/evidence: __________
+
+REST-DAY DESIGNATION
+Assign a day as rest-day work only if it actually falls on your rest day and is scheduled accordingly. This plan does not assume which calendar day that is.
+Rest-day work date/plan day: __________
+Actual reason for that work window: __________
+Actual start/end and hours: __________
+
+Completed by: __________  Reviewed by: __________
+Total actual hours: __________

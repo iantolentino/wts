@@ -19,6 +19,7 @@ require_once __DIR__ . '/security.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/tickets.php';
 require_once __DIR__ . '/wheettle.php';
+require_once __DIR__ . '/attachments.php';
 require_once __DIR__ . '/layout.php';
 set_exception_handler(function (Throwable $error): void {
     error_log('Wheettle: ' . $error->getMessage());

@@ -1,20 +1,21 @@
 ﻿# Context Diff
 
-- Current commit: 7c464d92de307cd98f805b4370b7297940c8537b
+- Current commit: 10ec3c498be819ae96389044c1fc33618f7bd1ca
 - Branch: main
-- Base commit: 9c95ba06fdd5561d4a1654e552f3bddb8f1d3f98
+- Base commit: 10ec3c498be819ae96389044c1fc33618f7bd1ca
 
 ## Changed files
 
-- `_brain/architecture/WHEettle.md`
-- `_brain/BRAIN_INDEX.md`
+- `_brain/CONTEXT_DIFF.md`
 - `_brain/CURRENT_STATE.md`
-- `_brain/daily/2026-09-11.md`
-- `_brain/governance/code_review_rules.md`
-- `_brain/releases/wheettle-mvp-verification.md`
+- `_brain/daily/2026-09-15.md`
+- `_brain/sessions/archive/handoff-before-docs-20260915-133449.md`
 - `_brain/sessions/LATEST_HANDOFF.md`
-- `_brain/skills/code_review_quick_ref.md`
-- `app/database.php`
+- `documentation/~$eettle-Functionality-Draft.docx`
+- `documentation/Functionality-Draft.md`
+- `documentation/OT-Plan-5-Days-and-1-Rest-Day.txt`
+- `documentation/Wheettle-Functionality-Draft.docx`
+- `documentation/Wheettle-Functionality-Draft-Revised.docx`
 
 ## Use
 
