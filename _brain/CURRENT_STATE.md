@@ -16,3 +16,6 @@ http://127.0.0.1:8030/login.php; username demo.tl; passwords only in ignored .lo
 
 ## Next
 Commit/push reviewed changes and verify remote revision; collect owner feedback and hosting details. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
+
+## Publication result
+- Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.

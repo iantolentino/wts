@@ -18,7 +18,9 @@ Source cng-ticketing and its database stay untouched. Do not commit credentials,
 
 ## Git Baseline
 
-- Base commit: 10ec3c498be819ae96389044c1fc33618f7bd1ca
+- Base commit: 449dc0d765374b67e77713f6b6eac58e10a89492
 - Branch: main
 - Working tree at handoff: has uncommitted changes
-- Verification: [tests/checks run, or not yet run]
+- Verification: 45 workflow checks, 19 supplementary checks, desktop/mobile checks, 31 PHP lint checks; 449dc0d pushed and remote verified.
+## Publication result
+- Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.
