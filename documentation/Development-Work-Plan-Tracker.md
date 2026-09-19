@@ -16,16 +16,16 @@ This tracker records what is evidenced in the local Whittles build and what rema
 | Day 5 - UI and workflow integration | Complete locally | Login, registration, dashboard, staff, ticket, history, reports, account screens and role-aware responsive layouts are connected. |
 | Day 6 - Database and functional testing | Complete for covered cases | 45 core, 19 handover, 49 audit and 62 registration checks passed locally; PHP syntax checks also passed. |
 | Day 7 - Complete local system testing and corrections | Complete for defined local scope | End-to-end, role, attachment, report/export, mobile and visual checks passed. Remaining limitations are target-environment and owner-acceptance items. |
-| Day 8 - Release preparation and deployment planning | **Partial** | Documentation, handover and deployment checklist exist, and Git excludes local credentials/QA artifacts. The current tested changes are still uncommitted after `c6c1f19`; hosting and recovery details are still unknown. |
+| Day 8 - Release preparation and deployment planning | Complete for local release prep | Documentation, handover and deployment checklist exist; the reviewed work is committed as `322ca8b` and pushed to `origin/main`. Target-specific hosting and recovery details are still unknown. |
 | Day 9 - Deployment and final live testing | **Pending / blocked on environment** | No hosting target, live URL, deployment access, production database, HTTPS setup or owner-approved live test data has been provided. |
 
 ## Remaining to-do list
 
 ### Release preparation
 
-- [ ] Review the complete uncommitted worktree and confirm the current tested source/docs are the intended release.
-- [ ] Commit the reviewed release to `main` and push it to `origin/main`.
-- [ ] Verify the pushed revision and record the commit in the deployment checklist.
+- [x] Review the complete worktree and confirm the current tested source/docs are the intended release.
+- [x] Commit the reviewed release to `main` and push it to `origin/main` (`322ca8b`).
+- [x] Verify the pushed revision and record the commit in the handoff/deployment state.
 - [ ] Obtain owner review of the local build, known limitations and attachment policy.
 - [ ] Decide whether a staging environment is required before production.
 
@@ -64,4 +64,3 @@ This tracker records what is evidenced in the local Whittles build and what rema
 - Actual date/time/hours for Days 0–9: not available from repository evidence.
 - Rest-day designation: not assigned; only record it if work actually occurred on a scheduled rest day.
 - Completed by / reviewed by / total actual hours: not recorded.
-
