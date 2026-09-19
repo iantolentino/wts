@@ -4,12 +4,16 @@ Updated: 2026-09-19
 
 ## Recommended duration
 
-Plan for **2 working days** after cPanel access, the domain and database details are available.
+For one developer, plan **5 active working days plus 2 buffer working days** after cPanel access, the domain and database details are available. That is approximately **7 working days or 9–10 calendar days**. The buffer is intentional for host problems, DNS/SSL delays, defects, retesting and owner feedback.
 
-- **Day 1:** host preparation, backup, file upload, database setup and configuration.
-- **Day 2:** role testing, ticket/database/attachment verification, bug checks, owner review and acceptance.
+- **Day 1:** access, requirements, backups, PHP/database checks and deployment preparation.
+- **Day 2:** application upload, database import/migration and configuration.
+- **Day 3:** account provisioning, private-path checks and baseline smoke testing.
+- **Day 4:** full role/UI/CRUD/attachment testing and bug correction.
+- **Day 5:** retesting, rollback verification, documentation and owner acceptance.
+- **Days 6–7:** protected buffer for defects, DNS/SSL/hosting support and delayed feedback.
 
-If the cPanel account, DNS, SSL and database are already ready, the technical work may fit into one day. Keep an additional buffer for DNS or SSL propagation and host-specific issues. Do not count the work as live-complete until the checks below pass on the real host.
+If everything is already prepared and no defects are found, the active work may finish earlier, but keep the full seven-working-day reservation. Do not count the work as live-complete until the checks below pass on the real host and the owner accepts the result.
 
 ## What to upload
 
@@ -77,7 +81,7 @@ Create the private `.local/sessions` directory with restricted permissions. Conf
 
 Enable HTTPS and confirm the cPanel web server supports the `.htaccess` rules used to block private paths.
 
-## Day 1 upload and setup checks
+## Active work: Days 1–3 — host, upload and setup checks
 
 - [ ] Confirm the hosting provider, domain, document root and deployment access.
 - [ ] Back up any existing site and database; download or otherwise verify the backup.
@@ -91,7 +95,7 @@ Enable HTTPS and confirm the cPanel web server supports the `.htaccess` rules us
 - [ ] Confirm the site loads over HTTPS and redirects or refuses plain HTTP as intended.
 - [ ] Confirm the document root does not expose `.git`, `.local`, `_brain`, `app`, `config`, `database`, `tests`, `tools` or `storage`.
 
-## Day 2 functional and security checks
+## Active work: Days 4–5 — functional and security checks
 
 ### Login and roles
 
@@ -134,7 +138,13 @@ Enable HTTPS and confirm the cPanel web server supports the `.htaccess` rules us
 - [ ] Record the live URL, deployed commit, database migration result, test evidence, operator and date.
 - [ ] Obtain owner acceptance before treating deployment as complete.
 
+## Buffer days 6–7
+
+- [ ] Reserve time for defects found during cPanel testing.
+- [ ] Repeat the affected test and the relevant regression suites after every correction.
+- [ ] Allow for DNS/SSL propagation, cPanel support responses, database import problems or permission changes.
+- [ ] Allow time for owner review, requested corrections and final acceptance evidence.
+
 ## Rollback trigger
 
 Stop acceptance and restore the approved backup if authentication, database writes, private-file protection, attachment downloads, role restrictions or critical pages fail. Record the failure and retest after correction; do not silently continue with a partially working production release.
-

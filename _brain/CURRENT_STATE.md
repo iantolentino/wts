@@ -53,4 +53,4 @@ Collect owner feedback and hosting details, then perform target-specific deploym
 
 ## Full release rerun and cPanel preparation 2026-09-19
 - Ran the complete local release gate again before deployment preparation: PHP syntax, 45 core checks, 19 handover checks, 49 audit checks, 62 registration checks and desktop/mobile visual checks all passed.
-- Added `documentation/cPanel-Deployment-Upload-Plan.md` with a two-working-day cPanel sequence, exact upload/exclusion list, database setup order, role/UI/CRUD/attachment checks, rollback triggers and owner-acceptance requirements.
+- Added `documentation/cPanel-Deployment-Upload-Plan.md` with a realistic solo-developer schedule of five active working days plus two buffer days, exact upload/exclusion list, database setup order, role/UI/CRUD/attachment checks, rollback triggers and owner-acceptance requirements.
