@@ -50,3 +50,7 @@ Collect owner feedback and hosting details, then perform target-specific deploym
 - Re-ran the local suites after starting the documented PHP server: 45 core, 19 handover, 49 audit and 62 registration checks passed; visual desktop/mobile checks passed; PHP syntax checks passed.
 - Added `documentation/Development-Work-Plan-Tracker.md` and refreshed the completion guide. Days 0–7 are complete for the defined local scope. Day 8 local release preparation is complete through pushed release `9819d15`; target-specific preparation remains pending. Day 9 remains pending because hosting, live access, HTTPS, production database and owner-approved live test data are not provided.
 - Credentials, sessions, QA artifacts and private attachment data remain excluded by Git. Actual plan dates/hours, rest-day designation and owner review remain intentionally unrecorded.
+
+## Full release rerun and cPanel preparation 2026-09-19
+- Ran the complete local release gate again before deployment preparation: PHP syntax, 45 core checks, 19 handover checks, 49 audit checks, 62 registration checks and desktop/mobile visual checks all passed.
+- Added `documentation/cPanel-Deployment-Upload-Plan.md` with a two-working-day cPanel sequence, exact upload/exclusion list, database setup order, role/UI/CRUD/attachment checks, rollback triggers and owner-acceptance requirements.

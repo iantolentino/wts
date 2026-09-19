@@ -58,6 +58,7 @@ This tracker records what is evidenced in the local Whittles build and what rema
 - PHP syntax checks passed for application, configuration and tool PHP files.
 - Local server was verified through the project test suites at `http://127.0.0.1:8030/login.php` after startup.
 - Credentials, sessions, private attachments and QA artifacts remain ignored by Git.
+- A second complete local release-gate run also passed on 2026-09-19 before cPanel preparation.
 
 ## Schedule fields intentionally left for the worker/owner
 

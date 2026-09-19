@@ -1,5 +1,7 @@
 # Deployment checklist - pending target
 
+For the cPanel-specific upload order, file exclusions, two-day schedule and per-phase checks, see `cPanel-Deployment-Upload-Plan.md`.
+
 No production deployment has occurred. Complete this checklist against the chosen host; do not substitute localhost results for live evidence.
 
 ## Information required

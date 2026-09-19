@@ -114,6 +114,7 @@ $env:NODE_PATH='C:\Users\Admin\Downloads\wts-build-tools\node_modules'
 - [Development work-plan tracker](documentation/Development-Work-Plan-Tracker.md): current Day 0–9 status and actionable release/deployment to-do list.
 - [User guide and handover](documentation/User-Guide-and-Handover.md): startup, roles and common workflows.
 - [Ten-day development work plan](documentation/Development-Work-Plan-Day-0-to-Day-9.txt): Day 0 documentation through Day 9 deployment; proposed allocation, with actual dates/hours left for the worker to record.
+- [cPanel deployment and upload plan](documentation/cPanel-Deployment-Upload-Plan.md): recommended two-day upload, database setup, role testing and acceptance sequence.
 - Supplementary verification: run `tests/handover.cjs` after `tests/browser.cjs` with the same NODE_PATH configuration. It creates a fictional account and leaves it deactivated.
 
 ## Project continuity details
