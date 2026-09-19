@@ -15,7 +15,7 @@ Local ticketing MVP with creation-time file attachments; employee photos retired
 http://127.0.0.1:8030/login.php; username demo.tl; passwords only in ignored .local/test-accounts.json. Restart tools/start-local.ps1. Existing installs run tools/migrate-ticket-files.php; fresh setup includes migration 002. Never reinitialize existing wheettle_ticketing database or modify cng-ticketing.
 
 ## Next
-Collect owner feedback and hosting details, then perform target-specific deployment when access is provided. Latest reviewed release is `322ca8b` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
+Collect owner feedback and hosting details, then perform target-specific deployment when access is provided. Latest reviewed release is `9819d15` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
 
 ## Publication result
 - Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.
@@ -48,5 +48,5 @@ Collect owner feedback and hosting details, then perform target-specific deploym
 
 ## Ten-day work-plan audit 2026-09-19
 - Re-ran the local suites after starting the documented PHP server: 45 core, 19 handover, 49 audit and 62 registration checks passed; visual desktop/mobile checks passed; PHP syntax checks passed.
-- Added `documentation/Development-Work-Plan-Tracker.md` and refreshed the completion guide. Days 0–7 are complete for the defined local scope. Day 8 local release preparation is complete through pushed release `322ca8b`; target-specific preparation remains pending. Day 9 remains pending because hosting, live access, HTTPS, production database and owner-approved live test data are not provided.
+- Added `documentation/Development-Work-Plan-Tracker.md` and refreshed the completion guide. Days 0–7 are complete for the defined local scope. Day 8 local release preparation is complete through pushed release `9819d15`; target-specific preparation remains pending. Day 9 remains pending because hosting, live access, HTTPS, production database and owner-approved live test data are not provided.
 - Credentials, sessions, QA artifacts and private attachment data remain excluded by Git. Actual plan dates/hours, rest-day designation and owner review remain intentionally unrecorded.

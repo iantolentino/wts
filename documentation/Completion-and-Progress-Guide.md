@@ -12,7 +12,7 @@ Verified locally: 19 September 2026. Scope: local ticketing MVP, attachments and
 | 5 - UI and integration | Complete locally | Connected forms, navigation, ticket attachment links and desktop/mobile checks. Employee photo controls retired. |
 | 6 - Database/function testing | Complete for covered cases | 45 core, 19 handover, 49 audit and 62 registration checks passed locally. |
 | 7 - Full local testing | Complete for defined local scope | End-to-end, role, attachment, report, mobile, visual and PHP syntax checks passed. |
-| 8 - Release/handover preparation | Complete for local release prep; target-specific preparation pending | User guide, migration instructions, tracker and deployment checklist are available; the reviewed release is pushed as `322ca8b`, while hosting/domain/database/recovery details require target information. |
+| 8 - Release/handover preparation | Complete for local release prep; target-specific preparation pending | User guide, migration instructions, tracker and deployment checklist are available; the reviewed release is pushed as `9819d15`, while hosting/domain/database/recovery details require target information. |
 | 9 - Deployment/live testing | Pending | No live hosting target or credentials provided; no deployment or live acceptance claimed. |
 
 ## Verification evidence
@@ -33,4 +33,4 @@ The first supplementary test attempt omitted clearing resolution before reopenin
 
 Local URL: http://127.0.0.1:8030/login.php. Test username: demo.tl. Passwords remain in the ignored local credential file. See User-Guide-and-Handover.md for startup and attachment migration instructions.
 
-Owner review and live deployment are pending. The reviewed local release is pushed as `322ca8b`. Use Deployment-Checklist.md once the target is known. Record new feedback with role, route, steps, expected/actual result, priority and retest result. The latest work allocation is Development-Work-Plan-Day-0-to-Day-9.txt; the actionable tracker is Development-Work-Plan-Tracker.md.
+Owner review and live deployment are pending. The reviewed local release is pushed as `9819d15`. Use Deployment-Checklist.md once the target is known. Record new feedback with role, route, steps, expected/actual result, priority and retest result. The latest work allocation is Development-Work-Plan-Day-0-to-Day-9.txt; the actionable tracker is Development-Work-Plan-Tracker.md.

@@ -9,7 +9,7 @@ Registration collects email/username/password/confirmation/requested role (Team 
 62 tests/registration.cjs checks + 45 main + 19 handover + 49 audit = 175 browser checks passed. 34 PHP files linted; registration JS syntax passed. Desktop/mobile auth and dashboard screenshots reviewed. Results/screenshots under ignored .local/qa. QA registration accounts left inactive/rejected. Owner credentials unchanged.
 
 ## Access / constraints
-http://127.0.0.1:8030/login.php and register.php. Owner accounts: tl team-leader, superadmin super-admin, admin1/admin2/admin3 management. Credentials .local/owner-accounts.json. Existing audits and fixtures retained. No production deployment has occurred; release commit `7ffcdb9` was pushed to `origin/main`. cng-ticketing untouched. Deployment target still pending. README, completion guide and work-plan tracker updated.
+http://127.0.0.1:8030/login.php and register.php. Owner accounts: tl team-leader, superadmin super-admin, admin1/admin2/admin3 management. Credentials .local/owner-accounts.json. Existing audits and fixtures retained. No production deployment has occurred; reviewed release state `9819d15` is pushed to `origin/main`. cng-ticketing untouched. Deployment target still pending. README, completion guide and work-plan tracker updated.
 
 ## Ten-day work-plan status
 Days 0â€“7 are complete for the defined local scope. Day 8 release preparation is complete through commit/push, with target-specific preparation still pending. Day 9 is blocked on hosting, domain, deployment access, production database, HTTPS, backup/recovery details and owner-approved live test data. Actual dates/hours and rest-day designation remain unrecorded.
