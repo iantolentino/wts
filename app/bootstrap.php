@@ -22,7 +22,7 @@ require_once __DIR__ . '/wheettle.php';
 require_once __DIR__ . '/attachments.php';
 require_once __DIR__ . '/layout.php';
 set_exception_handler(function (Throwable $error): void {
-    error_log('Wheettle: ' . $error->getMessage());
+    error_log('Whittles: ' . $error->getMessage());
     http_response_code(500);
     echo '<h1>Unable to complete this request</h1><p>Please try again or contact your administrator. Your changes may not have been saved.</p>';
 });

@@ -1,26 +1,25 @@
 # Session Handoff
 
-## Objective
-Owner authorized commit/push of completed local work to iantolentino/wts. Latest steering removes employee photos, adds ticket attachments and expands the work plan to Day 0-9. Production deployment is not authorized to a defined target yet; no target supplied.
+## Delivered
+Owner requested dual logos, removal of workspace-brand/People & Service wording, ticketing-focused login copy, and public registration subject to Super Admin approval.
+Implemented register.php, app/auth-layout.php, assets/css/branding.css and assets/js/registration.js. Sidebar: Strata above Whittles, all roles. Login/register: Whittles left and Strata right. Headline: Raise a ticket. Track progress. Resolve together.
+Registration collects email/username/password/confirmation/requested role (Team Leader, Admin/Management, Client Viewer). Live match feedback and Show passwords. Server rejects super-admin registration; pending users inactive until approved. Super Admin sees pending first in Accounts & TLs with email/role and Approve/Reject. Activation cannot bypass approval. Pending/rejected users excluded from assignment helpers. Uses existing schema, no new migration. Self-selected passwords retained after approval; username serves as display name. No emails sent.
 
-## Delivered and verified
-- Ticket creation accepts up to three 2 MB files; supported formats PDF/TXT/CSV/JPG/PNG/WebP/DOCX/XLSX. Private database storage, validated content, forced authenticated downloads following ticket visibility.
-- Migration 002 applied locally and wired into fresh setup; rerunnable CLI helper. Legacy photo data preserved while controls/display removed and endpoint retired.
-- 45 workflow checks + 19 supplementary checks + desktop/mobile visual checks + 31 PHP syntax checks passed. Fictional staff/ticket 7 retained; supplementary accounts deactivated.
-- Updated functionality DOCX/Markdown, ten-day TXT, completion/progress guide, user guide and deployment checklist. Actual OT dates/hours and owner acceptance not certified. Day 8 target-specific preparation and Day 9 deployment/live testing pending.
-- Canonical Word file is Wheettle-Functionality-Draft-Revised.docx. Legacy open Word draft ignored. DOCX XML validated; no brain/Nexus references; Word rendered layout not certified.
+## Verification
+62 tests/registration.cjs checks + 45 main + 19 handover + 49 audit = 175 browser checks passed. 34 PHP files linted; registration JS syntax passed. Desktop/mobile auth and dashboard screenshots reviewed. Results/screenshots under ignored .local/qa. QA registration accounts left inactive/rejected. Owner credentials unchanged.
 
-## Access and next step
-http://127.0.0.1:8030/login.php; demo.tl. Passwords only in .local/test-accounts.json. Start tools/start-local.ps1. For existing checkouts run tools/migrate-ticket-files.php; never rerun database initialization. Commit/push and verify remote SHA, then request hosting details when deployment is scheduled.
-
-## Constraints
-Source cng-ticketing and its database stay untouched. Do not commit credentials, sessions or real data. Current work plan: documentation/Development-Work-Plan-Day-0-to-Day-9.txt.
+## Access / constraints
+http://127.0.0.1:8030/login.php and register.php. Owner accounts: tl team-leader, superadmin super-admin, admin1/admin2/admin3 management. Credentials .local/owner-accounts.json. Existing audits and fixtures retained. No production deployment or commit/push in this work. cng-ticketing untouched. Deployment target still pending. README and user guide updated.
 
 ## Git Baseline
 
-- Base commit: 449dc0d765374b67e77713f6b6eac58e10a89492
+- Base commit: c6c1f19af1821483009c5019908a8bfcc8a4a80f
 - Branch: main
 - Working tree at handoff: has uncommitted changes
-- Verification: 45 workflow checks, 19 supplementary checks, desktop/mobile checks, 31 PHP lint checks; 449dc0d pushed and remote verified.
-## Publication result
-- Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.
+- Verification: Staff directory PHP lint and 14 targeted read-only browser checks passed; desktop/mobile screenshots reviewed
+## Latest dashboard refinement
+Dynamic date moved from shared header to welcome paragraph. Removed the welcome eyebrow and original descriptive paragraph. Both edited PHP files lint clean; no business logic changes.
+
+
+## Latest staff directory refinement
+Reworked staff.php and added assets/css/staff-directory.css: prominent search, department/TL filters, expandable team/date filters, applied chips, scoped status counts, result totals, filtered export and explicit profile links. Smaller screens use cards. Full details remain in profile. PHP lint + 14 targeted read-only browser checks passed; screenshots .local/qa/staff-improved-*.png. User guide updated; data unchanged.

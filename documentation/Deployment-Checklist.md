@@ -23,6 +23,7 @@ No production deployment has occurred. Complete this checklist against the chose
 ## Deploy and test
 
 - Deploy the reviewed revision and environment-specific configuration.
+- Provision the owner accounts (`tl`, `superadmin`, `admin1`, `admin2`, `admin3`) using `tools/provision-accounts.php --admin-role=management --output=<private-path-outside-document-root>`. See README for fresh schema import order. TL has Team Leader access; superadmin has full Super Admin access; admin1/admin2/admin3 have Management access (read staff/tickets, reports and exports). Existing accounts are preserved; new accounts get random passwords and must change them at first login. Deliver credentials privately; do not copy local passwords or fixtures.
 - Confirm migration, login, session behavior and role restrictions.
 - Test ticket creation with permitted attachments, invalid file rejection, authorized download and anonymous denial.
 - Exercise staff/history, ticket resolution/reopening, reports and exports with approved test data.

@@ -12,11 +12,14 @@ function query(string $sql, array $params = []): PDOStatement {
 }
 function input(string $key, int $max = 2000): string {
     $value = trim(request_string($_POST, $key));
+    if (!mb_check_encoding($value, 'UTF-8')) throw new InvalidArgumentException('Enter valid UTF-8 text.');
     if (mb_strlen($value) > $max) throw new InvalidArgumentException(ucfirst(str_replace('_',' ', $key)) . ' is too long.');
+    if (strlen($value) > 65535) throw new InvalidArgumentException(ucfirst(str_replace('_',' ', $key)) . ' is too large. Use fewer characters (maximum 65,535 UTF-8 bytes).');
     return $value;
 }
 function date_value(string $value, bool $required = false): ?string {
     if ($value === '' && !$required) return null;
+    if (!preg_match('/^[1-9][0-9]{3}-[0-9]{2}-[0-9]{2}$/D', $value)) throw new InvalidArgumentException('Enter a valid date between years 1000 and 9999.');
     $date = DateTimeImmutable::createFromFormat('!Y-m-d', $value);
     if (!$date || $date->format('Y-m-d') !== $value) throw new InvalidArgumentException('Enter a valid date.');
     return $value;
@@ -33,7 +36,7 @@ function options(array $rows, string $selected = '', string $label = 'name'): vo
 function enum_options(array $values, string $selected): void {
     foreach ($values as $key => $label) echo '<option value="'.e($key).'"'.($selected === $key ? ' selected' : '').'>'.e($label).'</option>';
 }
-function tls(): array { return query("SELECT u.id,u.full_name FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 AND r.slug='team-leader' ORDER BY u.full_name")->fetchAll(); }
+function tls(): array { return query("SELECT u.id,u.full_name FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 AND u.approval_status='approved' AND r.slug='team-leader' ORDER BY u.full_name")->fetchAll(); }
 function staff_record(int $id, bool $lock = false): array {
     $row = query('SELECT s.*,d.name AS department_name,u.full_name AS tl_name FROM staff_directory s LEFT JOIN departments d ON d.id=s.department_id LEFT JOIN users u ON u.id=s.tl_id WHERE s.id=?' . ($lock ? ' FOR UPDATE' : ''), [$id])->fetch();
     if (!$row) { http_response_code(404); exit('Employee not found.'); }

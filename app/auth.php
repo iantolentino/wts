@@ -29,7 +29,7 @@ function default_landing_page(): string {
 }
 function require_login(): array {
     $user = current_user(); if ($user === null) redirect('login.php');
-    if ($user['must_change_password'] && basename($_SERVER['PHP_SELF']) !== 'change-password.php') redirect('change-password.php');
+    if ($user['must_change_password'] && !in_array(basename($_SERVER['PHP_SELF']), ['change-password.php', 'logout.php'], true)) redirect('change-password.php');
     return $user;
 }
 function require_permission(string $permissionKey): array {

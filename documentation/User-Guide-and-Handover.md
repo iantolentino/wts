@@ -18,7 +18,7 @@ Open Staff, then Add employee. Enter the required profile details, active TL ass
 
 Use Edit profile for changes. Employment status changes are manual. Exited staff require a valid exit date. Record earlier context with Add a history note; that action does not change current profile values. If another user has changed the profile, reload and review their changes before submitting again.
 
-Use directory search and department/team/TL/status/date filters to find records. Department history filters use current assignments; the transfer timeline retains old and new assignments.
+In Staff directory, search by name, employee code or job title. Department and Team leader filters are beside search; expand More filters for team and employment start dates. Status tabs show counts within your current search. Applied filters appear as removable labels; use Clear all to reset. Export results downloads the matching staff. Select View profile for shift schedules, employment dates and history. On smaller screens, each employee appears as a labeled card. Department history filters use current assignments; the transfer timeline retains old and new assignments.
 
 ## Ticket work
 
@@ -34,7 +34,11 @@ Choose a date range and optional department in Reports. Current headcounts and a
 
 ## Accounts and roles
 
-Super Admin can create accounts and activate/deactivate other accounts. New accounts must change their initial password. A TL with active/new assigned employees must have those employees reassigned before deactivation. Employee profiles do not automatically create login accounts.
+Choose Create an account on the login page to register with an email, username, requested role, password and confirmation. Password matching feedback and Show passwords help you check your entry. Available roles are Team Leader, Admin (Management) and Client Viewer; public registration cannot request Super Admin. Accounts remain pending until approved.
+
+Super Admin reviews pending registrations at the top of Accounts & TLs, checks the email and requested role, then selects Approve or Reject. Approval enables sign-in with the user's chosen password; rejection keeps access blocked. Registration does not send email. The username is also the registrant's display name.
+
+Super Admin can also create accounts directly and activate/deactivate approved accounts. Directly created accounts must change their initial password. A TL with active/new assigned employees must have those employees reassigned before deactivation. Employee profiles do not automatically create login accounts.
 
 Team Leaders manage staff and tickets. Management reads and reports. Client Viewers read tickets. TLs currently share staff access across teams.
 

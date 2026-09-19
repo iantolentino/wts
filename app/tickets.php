@@ -20,7 +20,7 @@ function activity(int $ticketId, ?int $actorId, string $action, array $details =
     db()->prepare('INSERT INTO ticket_activity(ticket_id,actor_id,action,details) VALUES(?,?,?,?)')->execute([$ticketId,$actorId,$action,$json]);
     db()->prepare('INSERT INTO ticket_activity_log(ticket_id,action,changed_fields,old_values,new_values,changed_by) VALUES(?,?,?,?,?,?)')->execute([$ticketId,$action,$json,null,$json,$actorId === null ? 'system' : (string) $actorId]);
 }
-function active_users(): array { return db()->query('SELECT u.id,u.full_name,u.department_id,r.slug AS role_slug FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 ORDER BY u.full_name')->fetchAll(); }
+function active_users(): array { return db()->query('SELECT u.id,u.full_name,u.department_id,r.slug AS role_slug FROM users u JOIN roles r ON r.id=u.role_id WHERE u.is_active=1 AND u.approval_status=\'approved\' ORDER BY u.full_name')->fetchAll(); }
 function active_departments(): array { return db()->query('SELECT id,name,code FROM departments ORDER BY name')->fetchAll(); }
 function category_department_ids(string $category, array $departments): array {
     $codes = TICKET_CATEGORY_DEPARTMENT_CODES[$category] ?? array_column($departments, 'code');

@@ -1,0 +1,5 @@
+<?php
+function auth_page_start(string $title): void {
+?><!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title><?=e($title)?> · Whittles Ticketing</title><link rel="icon" type="image/webp" href="assets/Whittles%20Body%20Corp.webp"><link rel="stylesheet" href="assets/css/app.css"><link rel="stylesheet" href="assets/css/wheettle.css"><link rel="stylesheet" href="assets/css/branding.css"></head><body class="wts login-page"><main class="login-wrap"><section class="login-copy"><p class="eyebrow">Ticketing system</p><h1>Raise a ticket.<br>Track progress.<br>Resolve together.</h1><p>Submit requests, follow updates and keep every resolution in one place.</p></section><section class="login-card"><div class="auth-logos"><img src="assets/Whittles%20Body%20Corp.webp" alt="Whittles"><img src="assets/stratastaff-logo.png" alt="Strata Staff Global"></div>
+<?php }
+function auth_page_end(): void { echo '</section></main><script src="assets/js/registration.js" defer></script></body></html>'; }

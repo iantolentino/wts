@@ -1,6 +1,6 @@
-# Wheettle — Ticketing & Staff History
+# Whittles — Ticketing & Staff History
 
-An independent PHP/MySQL application adapted from the owner's CNG ticketing design, authentication/ticket helpers and relational schema. Strata Staff logo and favicon are retained. The source project is not modified. No source employee data, credentials, private attachments or integrations are included.
+An independent PHP/MySQL application adapted from the owner's CNG ticketing design, authentication/ticket helpers and relational schema. The supplied Whittles logo is used for application branding and the browser icon. The source project is not modified. No source employee data, credentials, private attachments or integrations are included.
 
 ## Local testing
 
@@ -24,6 +24,29 @@ C:\xampp\php\php.exe tools/setup-local.php
 
 This creates `wheettle_ticketing` using the local XAMPP root account, applies `database/schema.sql` then `database/001_wheettle.sql`, and creates fictional demo records. It refuses an existing database. `--resume-empty-base` is restricted to recovery of a base-only database with no staff, tickets or users. It never drops the database. This is a local development initializer, not a production installer.
 
+## Owner test accounts and deployment accounts
+
+The five owner accounts are `tl`, `superadmin`, `admin1`, `admin2`, and `admin3`.
+`tl` is a Team Leader; `superadmin` has full Super Admin access. The three admin accounts use the Management role: read staff/tickets, reports and exports.
+Local temporary passwords are in `.local/owner-accounts.json`. Each account must change
+its password on first login using the application's password-change form.
+
+To provision these usernames on an installation with the schema and migrations applied:
+
+```powershell
+C:\xampp\php\php.exe tools/provision-accounts.php --admin-role=management --output=.local/owner-accounts.json
+```
+
+For deployment, configure `config/config.local.php` for the target database, import
+`database/schema.sql`, `database/001_wheettle.sql`, and `database/002_ticket_files.sql`
+in that order into an empty database, then run the command with the host's PHP CLI
+and an output path outside the public document root. Existing databases must already
+have the appropriate migrations; do not reimport the base schema. Provisioning creates
+only missing accounts, preserves existing passwords/roles/status, and never overwrites
+a credentials file. New accounts receive fresh random temporary passwords on each
+installation. Do not deploy the local credential file or demo database. Retain the
+generated credentials privately for handover and change passwords on first login.
+
 ## Attachment migration
 
 Existing installations: run `C:\xampp\php\php.exe tools/migrate-ticket-files.php` before using the updated app. This adds private attachment bytes to the existing metadata table and preserves records. Fresh setup applies the migration automatically. Employee photos are retired; legacy stored data is preserved but not served. PHP Fileinfo and Zip are required.
@@ -38,6 +61,25 @@ Existing installations: run `C:\xampp\php\php.exe tools/migrate-ticket-files.php
 - Optimistic edit versions prevent stale employee or ticket updates from overwriting newer changes.
 
 ## Access rules
+
+### Registration and approval
+
+Choose **Create an account** on the login page. Registration requires email, username,
+password, confirmation and a requested role: Team Leader, Admin (Management), or Client Viewer.
+The form provides password matching feedback and a Show passwords control. Super Admin is
+never available through public registration, including direct form submissions.
+
+Registrations remain pending and inactive until a Super Admin opens **Accounts & TLs** and
+chooses **Approve**. Pending requests appear first with their email and requested role.
+**Reject** leaves the account unable to sign in. Only approved active users appear in ticket
+and employee assignment lists. Registrants use their username as their display name and keep
+their chosen password after approval. Accounts created directly by a Super Admin still
+require a first-login password change. Emails are collected for manual review; the app does
+not send email or verify email ownership. This feature uses the existing user approval
+columns and requires no additional database migration.
+
+Run `tests/registration.cjs` for registration, approval, role restrictions and dual-logo layout
+checks. It creates fictional accounts and leaves them inactive or rejected.
 
 | Role | Access |
 | --- | --- |
@@ -65,8 +107,11 @@ $env:NODE_PATH='C:\Users\Admin\Downloads\wts-build-tools\node_modules'
 
 ## Documentation and handover
 
+- [System audit, fixes and verification (2026-09-16)](documentation/System-Audit-2026-09-16.md): 113 browser checks, 32 PHP syntax checks, fresh installation and Apache private-path checks. Run `tests/audit.cjs` after the two existing browser suites for the added regression checks.
+
 - [Functionality draft](documentation/Functionality-Draft.md) and [Word document](documentation/Wheettle-Functionality-Draft-Revised.docx).
 - [Completion and progress guide](documentation/Completion-and-Progress-Guide.md): work sections, verified tests and remaining owner acceptance.
+- [Development work-plan tracker](documentation/Development-Work-Plan-Tracker.md): current Day 0–9 status and actionable release/deployment to-do list.
 - [User guide and handover](documentation/User-Guide-and-Handover.md): startup, roles and common workflows.
 - [Ten-day development work plan](documentation/Development-Work-Plan-Day-0-to-Day-9.txt): Day 0 documentation through Day 9 deployment; proposed allocation, with actual dates/hours left for the worker to record.
 - Supplementary verification: run `tests/handover.cjs` after `tests/browser.cjs` with the same NODE_PATH configuration. It creates a fictional account and leaves it deactivated.

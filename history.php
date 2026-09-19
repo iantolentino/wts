@@ -2,7 +2,7 @@
 require __DIR__.'/app/bootstrap.php';$user=require_permission('view_staff');$error='';
 try{[$where,$params,$filters]=staff_filter($_GET);}catch(InvalidArgumentException $e){$error=$e->getMessage();[$where,$params,$filters]=staff_filter([]);}
 // These dates refer to history events, not employment start dates.
-$filterSource=$_GET;unset($filterSource['from'],$filterSource['to']);[$where,$params]=staff_filter($filterSource);
+$filterSource=$filters;unset($filterSource['from'],$filterSource['to']);[$where,$params]=staff_filter($filterSource);
 foreach(['from'=>'>=','to'=>'<='] as $key=>$op)if($filters[$key]!==''){$where.=($where?' AND ':' WHERE ').'h.effective_date'.$op.'?';$params[]=$filters[$key];}
 $join=' FROM staff_history h JOIN staff_directory s ON s.id=h.staff_id JOIN users u ON u.id=h.actor_id';
 $total=(int)query('SELECT COUNT(*)'.$join.$where,$params)->fetchColumn();$page=page_number($total);

@@ -1,5 +1,6 @@
 <?php
 require __DIR__.'/app/bootstrap.php';$user=require_permission('manage_staff');$id=positive_id($_GET,'id');$row=$id?staff_record($id):array_fill_keys(STAFF_FIELDS,'');$error='';
+if(!$id && $user['role_slug']==='team-leader')$row['tl_id']=$user['id'];
 if($_SERVER['REQUEST_METHOD']==='POST'){
     verify_csrf();try{$saved=save_employee($id?:null,$user);flash($id?'Employee profile and history updated.':'Employee added to the directory.');redirect('employee.php?id='.$saved);}catch(InvalidArgumentException $e){$error=$e->getMessage();}
 }

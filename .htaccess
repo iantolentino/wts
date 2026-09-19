@@ -1,6 +1,6 @@
 Options -Indexes
-<FilesMatch "^(SPEC\.md|README\.md|AGENTS\.md|CLAUDE\.md|\.gitignore)$">
+<FilesMatch "(?i)^(SPEC\.md|README\.md|AGENTS\.md|CLAUDE\.md|\.gitignore)$">
     Require all denied
 </FilesMatch>
 RewriteEngine On
-RewriteRule ^(?:\.git|\.local|_brain|app|config|database|tests|tools|storage)(?:/|$) - [F,L]
+RewriteRule ^(?:\.git|\.local|_brain|app|config|database|tests|tools|storage)(?:/|$) - [F,L,NC]
