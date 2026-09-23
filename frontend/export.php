@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_login();$type=request_string($_GET,'type');
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_login();$type=request_string($_GET,'type');
 try{
     if($type==='staff'){
         require_permission('export_staff');[$where,$params]=staff_filter($_GET);

@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_all_tickets');$id=positive_id($_GET,'id');require_ticket_visible($user,$id);
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_all_tickets');$id=positive_id($_GET,'id');require_ticket_visible($user,$id);
 $ticket=query('SELECT t.*,d.name department_name,u.full_name assignee_name,c.full_name creator_name FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id JOIN users c ON c.id=t.created_by WHERE t.id=? AND t.deleted_at IS NULL',[$id])->fetch();if(!$ticket){http_response_code(404);exit('Ticket not found.');}$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     verify_csrf();try{

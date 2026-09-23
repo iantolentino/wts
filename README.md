@@ -2,6 +2,17 @@
 
 An independent PHP/MySQL application adapted from the owner's CNG ticketing design, authentication/ticket helpers and relational schema. The supplied Whittles logo is used for application branding and the browser icon. The source project is not modified. No source employee data, credentials, private attachments or integrations are included.
 
+## Project folders
+
+- frontend/ contains the public PHP pages and browser assets. The root .htaccess keeps the existing page URLs and serves assets from frontend/assets/.
+- backend/ contains the application code, private configuration, session storage and CLI deployment tools. HTTP access to this directory is denied.
+- database/ contains the empty-install schema and ordered migrations.
+
+## cPanel upload archive
+
+Run powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-cpanel-package.ps1 to create dist/whittles-cpanel-upload.zip. Extract that ZIP directly into the domain document root. It contains the frontend, backend runtime, protected SQL files and the Super Admin provisioning command; it omits Git, local configuration, credentials, sessions, test data and development files.
+
+For a new database, import database/schema.sql, database/001_wheettle.sql and database/002_ticket_files.sql in that order. Copy backend/config/config.example.php to backend/config/config.local.php and enter the cPanel database details. Set accounts.superadmin_initial_password there before running backend/tools/provision-accounts.php. The password is used only when creating a missing superadmin account; the account requires a password change at first login. Remove the setting after provisioning.
 ## Local testing
 
 URL: **http://127.0.0.1:8030/login.php**
@@ -34,10 +45,10 @@ its password on first login using the application's password-change form.
 To provision these usernames on an installation with the schema and migrations applied:
 
 ```powershell
-C:\xampp\php\php.exe tools/provision-accounts.php --admin-role=management --output=.local/owner-accounts.json
+C:\xampp\php\php.exe backend/tools/provision-accounts.php --admin-role=management --output=.local/owner-accounts.json
 ```
 
-For deployment, configure `config/config.local.php` for the target database, import
+For deployment, configure `backend/config/config.local.php` for the target database, import
 `database/schema.sql`, `database/001_wheettle.sql`, and `database/002_ticket_files.sql`
 in that order into an empty database, then run the command with the host's PHP CLI
 and an output path outside the public document root. Existing databases must already
@@ -49,7 +60,7 @@ generated credentials privately for handover and change passwords on first login
 
 ## Attachment migration
 
-Existing installations: run `C:\xampp\php\php.exe tools/migrate-ticket-files.php` before using the updated app. This adds private attachment bytes to the existing metadata table and preserves records. Fresh setup applies the migration automatically. Employee photos are retired; legacy stored data is preserved but not served. PHP Fileinfo and Zip are required.
+Existing installations: run `C:\xampp\php\php.exe backend/tools/migrate-ticket-files.php` before using the updated app. This adds private attachment bytes to the existing metadata table and preserves records. Fresh setup applies the migration automatically. Employee photos are retired; legacy stored data is preserved but not served. PHP Fileinfo and Zip are required.
 
 ## Features
 
@@ -121,4 +132,4 @@ $env:NODE_PATH='C:\Users\Admin\Downloads\wts-build-tools\node_modules'
 
 Read `AGENTS.md`, then `_brain/AI_BRAIN.md`. AI Nexus source: https://github.com/iantolentino/ai-nexus at commit `0934093b5f45b939d1803adb940b122cf2ee2519`. Follow `_brain/CURRENT_STATE.md` and `_brain/sessions/LATEST_HANDOFF.md` for project-specific state. Specification: `SPEC.md`. Repository: https://github.com/iantolentino/wts.
 
-Production deployment has not been performed. Before deployment, configure a dedicated database user via ignored `config/config.local.php`, enable Fileinfo, Zip and HTTPS, remove local demo accounts/fixtures through a reviewed deployment process, and enforce the equivalent private-directory restrictions in the chosen web server. Do not copy the local credentials or session directory.
+Production deployment has not been performed. Before deployment, configure a dedicated database user via ignored `backend/config/config.local.php`, enable Fileinfo, Zip and HTTPS, remove local demo accounts/fixtures through a reviewed deployment process, and enforce the equivalent private-directory restrictions in the chosen web server. Do not copy the local credentials or session directory.

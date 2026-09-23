@@ -1,6 +1,6 @@
 <?php
-require __DIR__.'/app/bootstrap.php';
-require __DIR__.'/app/auth-layout.php';
+require dirname(__DIR__).'/backend/app/bootstrap.php';
+require dirname(__DIR__).'/backend/app/auth-layout.php';
 if(current_user())redirect('dashboard.php');
 $roles=['team-leader'=>'Team Leader','management'=>'Admin (Management)','client-viewer'=>'Client Viewer'];
 $error='';

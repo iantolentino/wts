@@ -119,5 +119,5 @@ Review sign-off: Owner/reviewer __________ | Review date __________ | Approved c
 - dashboard.php, index.php, create-ticket.php and ticket.php: overview and ticket UI/workflows.
 - staff.php, employee-form.php, employee.php, history.php: staff screens and history.
 - departments.php, reports.php, export.php and users.php: administration, aggregation and CSV output.
-- app/wheettle.php and app/tickets.php: field/status/category definitions, validation, filters and concurrency helpers.
+- backend/app/wheettle.php and backend/app/tickets.php: field/status/category definitions, validation, filters and concurrency helpers.
 - tests/visual.cjs: the browser checks run for this draft.

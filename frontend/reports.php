@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_reports');$error='';$from=request_string($_GET,'from')?:date('Y-m-01');$to=request_string($_GET,'to')?:date('Y-m-d');$department=positive_id($_GET,'department_id');
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_reports');$error='';$from=request_string($_GET,'from')?:date('Y-m-01');$to=request_string($_GET,'to')?:date('Y-m-d');$department=positive_id($_GET,'department_id');
 try{date_value($from,true);date_value($to,true);if($from>$to)throw new InvalidArgumentException('Select an end date on or after the start date.');}catch(InvalidArgumentException $e){$error=$e->getMessage();$from=date('Y-m-01');$to=date('Y-m-d');}
 $scope=$department?' WHERE s.department_id=?':'';$sp=$department?[$department]:[];
 $staff=query("SELECT COUNT(*) total,COALESCE(SUM(employment_status='active'),0) active,COALESCE(SUM(employment_status='new'),0) new,COALESCE(SUM(employment_status='exited'),0) exited FROM staff_directory s".$scope,$sp)->fetch();

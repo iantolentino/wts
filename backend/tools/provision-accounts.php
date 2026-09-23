@@ -7,12 +7,20 @@ $options = getopt('', ['admin-role:', 'output:']);
 $adminRole = $options['admin-role'] ?? '';
 $output = $options['output'] ?? '';
 if (!in_array($adminRole, ['super-admin', 'team-leader', 'management'], true) || $output === '') {
-    fwrite(STDERR, "Usage: php tools/provision-accounts.php --admin-role=management --output=<private-credentials.json>\n");
+    fwrite(STDERR, "Usage: php backend/tools/provision-accounts.php --admin-role=management --output=<private-credentials.json>\n");
     exit(1);
 }
-$root = dirname(__DIR__);
-$config = require is_file($root.'/config/config.local.php') ? $root.'/config/config.local.php' : $root.'/config/config.example.php';
-require $root.'/app/database.php';
+$root = dirname(__DIR__, 2);
+$configPath = is_file($root.'/backend/config/config.local.php')
+    ? $root.'/backend/config/config.local.php'
+    : $root.'/backend/config/config.example.php';
+$config = require $configPath;
+$initialSuperAdminPassword = $config['accounts']['superadmin_initial_password'] ?? '';
+if (!is_string($initialSuperAdminPassword) || ($initialSuperAdminPassword !== '' && (strlen($initialSuperAdminPassword) < 12 || strlen($initialSuperAdminPassword) > 72))) {
+    fwrite(STDERR, "The configured initial Super Admin password must be 12 to 72 characters.\n");
+    exit(1);
+}
+require $root.'/backend/app/database.php';
 $pdo = db();
 $accounts = [
     ['tl', 'Team Leader', 'team-leader'],
@@ -36,7 +44,9 @@ try {
         $roleQuery->execute([$role]);
         $roleId = $roleQuery->fetchColumn();
         if (!$roleId) throw new RuntimeException("Missing role: $role. Import the application schema and migrations first.");
-        $password = 'Wts!'.bin2hex(random_bytes(10));
+        $password = $username === 'superadmin' && $initialSuperAdminPassword !== ''
+            ? $initialSuperAdminPassword
+            : 'Wts!'.bin2hex(random_bytes(10));
         $insert = $pdo->prepare('INSERT INTO users(role_id,username,full_name,password_hash,must_change_password,is_active,approval_status) VALUES(?,?,?,?,1,1,\'approved\')');
         $insert->execute([$roleId, $username, $name, password_hash($password, PASSWORD_DEFAULT)]);
         $created[] = ['username'=>$username, 'password'=>$password, 'role'=>$role];

@@ -10,7 +10,7 @@
 
 Do not rerun database initialization on the existing installation. The local URL is not a hosted production service.
 
-For an existing checkout receiving the attachment feature, run `C:\xampp\php\php.exe tools/migrate-ticket-files.php` once before serving the updated app. It is additive and safe to rerun. Fresh setup includes the migration. PHP Fileinfo and Zip must be enabled.
+For an existing checkout receiving the attachment feature, run `C:\xampp\php\php.exe backend/tools/migrate-ticket-files.php` once before serving the updated app. It is additive and safe to rerun. Fresh setup includes the migration. PHP Fileinfo and Zip must be enabled.
 
 ## Employee work
 

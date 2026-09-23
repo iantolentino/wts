@@ -28,7 +28,7 @@ function check(name, value) { assert.ok(value, name); results.push(name); consol
     await page.goto(base+'/login.php');
     await page.screenshot({path:path.join(artifact,'login.png'),fullPage:true});
     check('Login displays supplied Whittles logo', await page.getByAltText('Whittles').count()===1);
-    check('Private configuration denied', (await context.request.get(base+'/config/config.example.php')).status()===403);
+    check('Private configuration denied', (await context.request.get(base+'/backend/config/config.example.php')).status()===403);
     check('Brain denied over HTTP', (await context.request.get(base+'/_brain/CURRENT_STATE.md')).status()===403);
     await login('tl');
     check('TL can sign in', await page.getByRole('heading',{name:'Overview',exact:true}).count()===1);

@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_staff');$id=positive_id($_GET,'id');$row=staff_record($id);$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_staff');$id=positive_id($_GET,'id');$row=staff_record($id);$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     require_permission('manage_staff');verify_csrf();
     try{$note=input('history_note',10000);if($note==='')throw new InvalidArgumentException('Enter a history note.');$effective=date_value(input('effective_date',10),true);if($effective>date('Y-m-d'))throw new InvalidArgumentException('History notes cannot be future-dated.');query("INSERT INTO staff_history(staff_id,actor_id,event_type,effective_date,notes) VALUES(?,?,'note',?,?)",[$id,$user['id'],$effective,$note]);flash('History note added.');redirect('employee.php?id='.$id);}catch(InvalidArgumentException $e){$error=$e->getMessage();}

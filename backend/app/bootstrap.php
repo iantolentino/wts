@@ -1,10 +1,17 @@
 <?php
 declare(strict_types=1);
-const ROOT_PATH = __DIR__ . '/..';
-$config = require is_file(ROOT_PATH . '/config/config.local.php') ? ROOT_PATH . '/config/config.local.php' : ROOT_PATH . '/config/config.example.php';
+const ROOT_PATH = __DIR__ . '/../..';
+const BACKEND_PATH = __DIR__ . '/..';
+$configPath = is_file(BACKEND_PATH . '/config/config.local.php')
+    ? BACKEND_PATH . '/config/config.local.php'
+    : BACKEND_PATH . '/config/config.example.php';
+$config = require $configPath;
 date_default_timezone_set('Asia/Manila');
-if (!is_dir(ROOT_PATH . '/.local/sessions')) mkdir(ROOT_PATH . '/.local/sessions', 0700, true);
-session_save_path(ROOT_PATH . '/.local/sessions');
+$sessionPath = BACKEND_PATH . '/storage/sessions';
+if (!is_dir($sessionPath) && !mkdir($sessionPath, 0700, true) && !is_dir($sessionPath)) {
+    throw new RuntimeException('The private session directory could not be created.');
+}
+session_save_path($sessionPath);
 session_name($config['app']['session_name']);
 ini_set('session.use_strict_mode', '1');
 ini_set('session.use_only_cookies', '1');

@@ -2,7 +2,7 @@
 // CLI only. Creates a NEW local database; never resets or reuses an existing database.
 if(PHP_SAPI!=='cli'){http_response_code(404);exit;}
 date_default_timezone_set('Asia/Manila');
-$root=dirname(__DIR__);$config=require $root.'/config/config.example.php';
+$root=dirname(__DIR__);$config=require $root.'/backend/config/config.example.php';
 $pdo=new PDO('mysql:host=127.0.0.1;port=3306;charset=utf8mb4','root','',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
 $exists=$pdo->query("SELECT COUNT(*) FROM information_schema.schemata WHERE schema_name='wheettle_ticketing'")->fetchColumn();
 if($exists){

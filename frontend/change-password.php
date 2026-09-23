@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_login();$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_login();$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     verify_csrf();$current=request_string($_POST,'current_password');$new=request_string($_POST,'new_password');
     if(!password_verify($current,$user['password_hash']))$error='Current password is incorrect.';

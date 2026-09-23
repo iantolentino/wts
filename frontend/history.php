@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_staff');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_staff');$error='';
 try{[$where,$params,$filters]=staff_filter($_GET);}catch(InvalidArgumentException $e){$error=$e->getMessage();[$where,$params,$filters]=staff_filter([]);}
 // These dates refer to history events, not employment start dates.
 $filterSource=$filters;unset($filterSource['from'],$filterSource['to']);[$where,$params]=staff_filter($filterSource);

@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_staff');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_staff');$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     require_permission('manage_users');verify_csrf();try{$name=input('name',120);$code=input('code',40);if($name==='' || !preg_match('/^[a-z0-9-]{2,40}$/',$code))throw new InvalidArgumentException('Enter a department name and a lowercase code using letters, numbers or hyphens.');query('INSERT INTO departments(name,code) VALUES(?,?)',[$name,$code]);flash('Department added.');redirect('departments.php');}catch(InvalidArgumentException $e){$error=$e->getMessage();}catch(PDOException $e){if($e->getCode()!=='23000')throw $e;$error='That department name or code already exists.';}
 }

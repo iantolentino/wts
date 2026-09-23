@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_all_tickets');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_all_tickets');$error='';
 try{[$where,$params,$filters]=ticket_filter($_GET,$user);}catch(InvalidArgumentException $e){$error=$e->getMessage();[$where,$params,$filters]=ticket_filter([],$user);}
 $total=(int)query('SELECT COUNT(*) FROM tickets t'.$where,$params)->fetchColumn();$page=page_number($total);
 $rows=query('SELECT t.*,d.name department_name,u.full_name assignee_name FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id'.$where.' ORDER BY t.id DESC LIMIT 25 OFFSET '.(($page-1)*25),$params)->fetchAll();

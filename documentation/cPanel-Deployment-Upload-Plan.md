@@ -1,150 +1,49 @@
-# cPanel deployment and upload plan
+# cPanel upload package and database setup
 
-Updated: 2026-09-19
+This guide applies after the domain and MySQL database have been created in cPanel. The application has not been deployed until the extracted files, database connection, first Super Admin login and live checks all succeed.
 
-## Recommended duration
+## Build and upload the ZIP
 
-For one developer, plan **5 active working days plus 2 buffer working days** after cPanel access, the domain and database details are available. That is approximately **7 working days or 9–10 calendar days**. The buffer is intentional for host problems, DNS/SSL delays, defects, retesting and owner feedback.
+From the project folder, run:
 
-- **Day 1:** access, requirements, backups, PHP/database checks and deployment preparation.
-- **Day 2:** application upload, database import/migration and configuration.
-- **Day 3:** account provisioning, private-path checks and baseline smoke testing.
-- **Day 4:** full role/UI/CRUD/attachment testing and bug correction.
-- **Day 5:** retesting, rollback verification, documentation and owner acceptance.
-- **Days 6–7:** protected buffer for defects, DNS/SSL/hosting support and delayed feedback.
+    powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-cpanel-package.ps1
 
-If everything is already prepared and no defects are found, the active work may finish earlier, but keep the full seven-working-day reservation. Do not count the work as live-complete until the checks below pass on the real host and the owner accepts the result.
+The output is dist/whittles-cpanel-upload.zip. Upload it into the document root assigned to this domain, then extract it in place. The ZIP has the folder layout the PHP application expects:
 
-## What to upload
+- .htaccess
+- frontend/ with PHP pages and assets/
+- backend/ with private application code, config template, runtime storage restrictions and the CLI account provisioner
+- database/ with the schema and SQL migrations
 
-Upload the reviewed application source from the release repository into the cPanel document root or an application directory configured as the domain document root:
+The package builder checks that hidden .htaccess files and all three SQL files are present. It rejects local credentials, session files, test data, Git metadata and development documentation.
 
-- Root application PHP files: `index.php`, `login.php`, `logout.php`, `register.php`, `change-password.php`, `dashboard.php`, `staff.php`, `employee.php`, `employee-form.php`, `employee-photo.php`, `history.php`, `departments.php`, `ticket.php`, `create-ticket.php`, `attachment.php`, `reports.php`, `export.php`, and `users.php`.
-- `.htaccess`.
-- `app/`.
-- `assets/`.
-- `config/config.example.php` as a reference only; create the real `config/config.local.php` privately on the host.
-- `storage/private/.htaccess`; do not copy local attachment contents.
+## Configure the database
 
-Upload the exact reviewed release. Do not manually mix files from older versions.
+In phpMyAdmin, select the database you created. For a fresh empty database, use Import once per file in this order:
 
-## Do not upload
+1. database/schema.sql
+2. database/001_wheettle.sql
+3. database/002_ticket_files.sql
 
-Keep these out of the public cPanel document root and out of the production database:
+Wait for the success message after each import. The first file creates the base tables and roles, migration 001 adds Wheettle staff history and permissions, and migration 002 adds private ticket attachment bytes. Do not import schema.sql into an existing application database. Back up an existing database first and apply only migrations it is missing.
 
-- `.git/`, `.local/`, `_brain/`, `tests/`, `documentation/` and local QA screenshots/results.
-- `config/config.local.php` from the local machine.
-- Local credential files, session files, logs, demo accounts, fictional QA records and private attachments.
-- Local database dumps or a copy of the local `wheettle_ticketing` database.
-- `tools/setup-local.php`, `tools/start-local.ps1` and `tools/router.php`.
-- `tools/migrate-ticket-files.php` and `tools/provision-accounts.php` in a publicly reachable directory. If cPanel Terminal is available, use them temporarily from a private location, then remove them or confirm they are blocked.
+## Configure the application and Super Admin
 
-The root `.htaccess` blocks sensitive directories, but those files should still not be uploaded unnecessarily.
+In cPanel File Manager, copy backend/config/config.example.php to backend/config/config.local.php and edit the copy. Enter the database host, port, full cPanel database name, full database username and password. Hosting commonly uses localhost for the database host; use the value provided by the host. Set the application base URL to the domain's HTTPS URL and set a unique value for accounts.superadmin_initial_password (12 to 72 characters).
 
-## Database procedure
+If cPanel Terminal is enabled, open the application document root and run the following, replacing CPANEL_USER and the output path with the account's actual values:
 
-### Fresh production database
+    php backend/tools/provision-accounts.php --admin-role=management --output=/home/CPANEL_USER/whittles-owner-credentials.json
 
-1. Create a dedicated cPanel MySQL database and user.
-2. Grant only the permissions required by the application.
-3. Import these files in order through phpMyAdmin or a private cPanel database tool:
-   - `database/schema.sql`
-   - `database/001_wheettle.sql`
-   - `database/002_ticket_files.sql`
-4. Confirm the expected tables, roles, foreign keys and `ticket_attachments.file_data` column exist.
-5. Do not import local demo or QA records.
+The command creates only missing owner accounts. It uses the configured initial password for superadmin, generates random passwords for the other new owner accounts, and preserves any existing accounts. Keep the output file outside public_html. The Super Admin must change the initial password on first login; then remove the initial password from config.local.php.
 
-### Existing compatible database
+The account provisioner is CLI-only and the backend directory is denied over HTTP. If Terminal is unavailable, ask the hosting provider to enable a private PHP CLI session; do not make a public web installer.
 
-1. Back up the database and verify the backup is readable.
-2. Confirm the base schema and migration history.
-3. Apply `database/002_ticket_files.sql` only if the attachment column is missing.
-4. Never rerun the base schema against an existing production database.
+## First live checks
 
-## Host configuration
-
-Create `config/config.local.php` on the host using production-only values:
-
-- HTTPS application URL.
-- Production database host, port, database name, username and password.
-- A production session name.
-
-Create the private `.local/sessions` directory with restricted permissions. Confirm PHP has:
-
-- PHP 8.x.
-- PDO MySQL.
-- Fileinfo.
-- Zip.
-- mbstring.
-- `upload_max_filesize` of at least 2 MB.
-- `post_max_size` of at least 8 MB.
-
-Enable HTTPS and confirm the cPanel web server supports the `.htaccess` rules used to block private paths.
-
-## Active work: Days 1–3 — host, upload and setup checks
-
-- [ ] Confirm the hosting provider, domain, document root and deployment access.
-- [ ] Back up any existing site and database; download or otherwise verify the backup.
-- [ ] Confirm PHP version, extensions, MySQL/MariaDB version and upload limits.
-- [ ] Upload only the approved application files listed above.
-- [ ] Create production `config/config.local.php`; do not copy the local configuration.
-- [ ] Create the private session directory and check its permissions.
-- [ ] Import the schema/migrations using the correct fresh or existing-database procedure.
-- [ ] Provision `tl`, `superadmin`, `admin1`, `admin2` and `admin3` with fresh temporary passwords using a private output path.
-- [ ] Confirm credentials are delivered privately and are not inside `public_html`.
-- [ ] Confirm the site loads over HTTPS and redirects or refuses plain HTTP as intended.
-- [ ] Confirm the document root does not expose `.git`, `.local`, `_brain`, `app`, `config`, `database`, `tests`, `tools` or `storage`.
-
-## Active work: Days 4–5 — functional and security checks
-
-### Login and roles
-
-- [ ] Log in as Super Admin and change the temporary password.
-- [ ] Log in as Team Leader and change the temporary password.
-- [ ] Log in as Management and confirm read/report/export access.
-- [ ] Log in as Client Viewer and confirm ticket-only read access.
-- [ ] Confirm Management and Client Viewer cannot create or modify staff, tickets, departments or accounts.
-- [ ] Confirm logout and session revocation work.
-
-### UI and workflows
-
-- [ ] Check login, registration, dashboard, staff, employee, history, departments, tickets, reports, exports and account pages.
-- [ ] Check desktop and mobile layouts.
-- [ ] Create an employee, edit it, record history, change department/team and verify before/after history.
-- [ ] Create a ticket, link an employee, assign ownership, add a comment, update priority/status, resolve, close and reopen it.
-- [ ] Confirm stale edits are rejected without overwriting newer data.
-
-### Database and CRUD verification
-
-- [ ] Confirm new employee, ticket, comment, assignment, history and attachment records are saved.
-- [ ] Confirm edits update the correct rows and activity history records before/after values.
-- [ ] Confirm deletion is not exposed where the system requires historical preservation.
-- [ ] Confirm reports and CSV exports reconcile with the records just created.
-- [ ] Confirm dates, status changes, department filters and ticket totals are correct after reload.
-
-### Attachments and private access
-
-- [ ] Upload one permitted file and verify the downloaded bytes match exactly.
-- [ ] Verify invalid type, oversized file and excessive file-count rejection.
-- [ ] Verify an authorized ticket user can download the attachment.
-- [ ] Verify anonymous users and users without ticket access cannot download it.
-- [ ] Verify missing attachments return the expected not-found response.
-- [ ] Confirm private configuration, credentials, database files, tools and Git paths are denied over HTTP.
-
-### Final acceptance
-
-- [ ] Review application and server logs for errors after the smoke tests.
-- [ ] Confirm backup and rollback instructions are available.
-- [ ] Record the live URL, deployed commit, database migration result, test evidence, operator and date.
-- [ ] Obtain owner acceptance before treating deployment as complete.
-
-## Buffer days 6–7
-
-- [ ] Reserve time for defects found during cPanel testing.
-- [ ] Repeat the affected test and the relevant regression suites after every correction.
-- [ ] Allow for DNS/SSL propagation, cPanel support responses, database import problems or permission changes.
-- [ ] Allow time for owner review, requested corrections and final acceptance evidence.
-
-## Rollback trigger
-
-Stop acceptance and restore the approved backup if authentication, database writes, private-file protection, attachment downloads, role restrictions or critical pages fail. Record the failure and retest after correction; do not silently continue with a partially working production release.
+- Confirm https://your-domain/login.php and the domain root load.
+- Confirm CSS, logos and browser icon load.
+- Confirm /backend/config/config.example.php, /backend/tools/provision-accounts.php and /database/schema.sql return 403.
+- Sign in as superadmin, change the initial password, sign out, then sign in again.
+- Check the application logs and confirm no database or PHP errors.
+- Keep a database backup and the provisioning credentials file outside the document root until the owners have securely received their passwords.

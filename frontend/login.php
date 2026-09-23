@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';
+require dirname(__DIR__).'/backend/app/bootstrap.php';
 if(current_user())redirect('dashboard.php');
 $error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
@@ -20,6 +20,6 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
         }
     }
 }
-require __DIR__.'/app/auth-layout.php';
+require dirname(__DIR__).'/backend/app/auth-layout.php';
 auth_page_start('Sign in');
 ?><h2>Sign in</h2><?php if(!empty($_SESSION['flash'])):?><div class="notice" role="status"><?=e($_SESSION['flash'])?></div><?php unset($_SESSION['flash']);endif;error_notice($error);?><form method="post"><?php csrf_field();?><label>Username<input name="username" autocomplete="username" required maxlength="80" value="<?=e(request_string($_POST,'username'))?>"></label><label>Password<input name="password" type="password" autocomplete="current-password" required></label><button class="button">Sign in</button></form><p class="auth-foot">Need an account? <a href="register.php">Create an account</a></p><?php auth_page_end();

@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('view_staff');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('view_staff');$error='';
 try{[$where,$params,$filters]=staff_filter($_GET);}catch(InvalidArgumentException $e){$error=$e->getMessage();[$where,$params,$filters]=staff_filter([]);}
 if(!isset(STAFF_STATUSES[$filters['status']]))$filters['status']='';
 $total=(int)query('SELECT COUNT(*) FROM staff_directory s'.$where,$params)->fetchColumn();$page=page_number($total);$offset=($page-1)*25;

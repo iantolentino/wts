@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('create_tickets');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('create_tickets');$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     verify_csrf();try{
         $subject=input('subject',255);$issue=input('issue',20000);$category=input('category',80);$priority=input('priority',20);$department=positive_id($_POST,'department_id');$assignee=positive_id($_POST,'assignee_id');$staffId=positive_id($_POST,'staff_id');

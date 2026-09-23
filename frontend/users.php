@@ -1,5 +1,5 @@
 <?php
-require __DIR__.'/app/bootstrap.php';$user=require_permission('manage_users');$error='';
+require dirname(__DIR__).'/backend/app/bootstrap.php';$user=require_permission('manage_users');$error='';
 if($_SERVER['REQUEST_METHOD']==='POST'){
     verify_csrf();try{
         $action=input('action',20);

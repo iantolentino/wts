@@ -1,9 +1,11 @@
-/config/config.local.php
 /.local/
-/storage/private/*
-!/storage/private/.htaccess
+/backend/config/config.local.php
+/backend/storage/sessions/
+/backend/storage/private/*
+!/backend/storage/private/.htaccess
 /tests/artifacts/
 /_brain/sessions/manifests/
+/dist/
 *.log
 ~$*
 # Superseded local Word draft; publish the revised document.

@@ -1,7 +1,7 @@
 # Current State
 
 ## Current scope
-Local ticketing MVP with creation-time file attachments; employee photos retired. Owner requested commit/push to https://github.com/iantolentino/wts.git and a realistic Day 0-9 work plan. Live deployment is pending hosting details, not claimed complete.
+Local ticketing MVP with creation-time file attachments; employee photos retired. Deployment archive and cPanel layout are prepared. Owner has created the domain and database; production upload/live verification are pending.
 
 ## Verified 2026-09-15
 - 45 workflow checks, 19 supplementary checks, desktop/mobile visual checks and 31 PHP syntax checks passed.
@@ -15,7 +15,7 @@ Local ticketing MVP with creation-time file attachments; employee photos retired
 http://127.0.0.1:8030/login.php; username demo.tl; passwords only in ignored .local/test-accounts.json. Restart tools/start-local.ps1. Existing installs run tools/migrate-ticket-files.php; fresh setup includes migration 002. Never reinitialize existing wheettle_ticketing database or modify cng-ticketing.
 
 ## Next
-Collect owner feedback and hosting details, then perform target-specific deployment when access is provided. Latest reviewed release is `9819d15` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
+Owner has created the cPanel domain and database/user. The upload archive is ready; wait for owner to upload, then verify the live URL with a provided test account. Latest reviewed release is `9819d15` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
 
 ## Publication result
 - Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.
@@ -54,3 +54,9 @@ Collect owner feedback and hosting details, then perform target-specific deploym
 ## Full release rerun and cPanel preparation 2026-09-19
 - Ran the complete local release gate again before deployment preparation: PHP syntax, 45 core checks, 19 handover checks, 49 audit checks, 62 registration checks and desktop/mobile visual checks all passed.
 - Added `documentation/cPanel-Deployment-Upload-Plan.md` with a realistic solo-developer schedule of five active working days plus two buffer days, exact upload/exclusion list, database setup order, role/UI/CRUD/attachment checks, rollback triggers and owner-acceptance requirements.
+
+## cPanel package and source layout 2026-09-23
+- Reorganized deployable source into `frontend/`, `backend/` and `database/`; the root `.htaccess` preserves existing top-level URLs and blocks private/source paths. Local setup/router and deployment docs now use the new paths.
+- Added an editable `accounts.superadmin_initial_password` value to the private local config template and updated the CLI provisioning tool to use it for a new Super Admin account. Existing accounts remain unchanged; initial password change is still required.
+- Built `dist/whittles-cpanel-upload.zip` (51 files). The archive allowlist contains runtime files only and excludes `_brain`, docs, tests, local config/secrets, sessions, and developer tools other than the CLI account provisioner. `_brain` continuity notes are committed to GitHub only.
+- Verified 34 PHP files lint; 45 core, 19 handover, 49 audit, and 62 registration browser checks; desktop/mobile visual checks; and Apache route/private-file behavior (home redirects 302, login/assets 200, backend config and SQL 403). Production upload and live account test remain pending.

@@ -71,7 +71,7 @@ function check(name,ok){assert.ok(ok,name);results.push(name);console.log('PASS 
   }
   const anon=await browser.newContext();
   for(const route of ['dashboard.php','staff.php','history.php','reports.php','users.php','export.php?type=staff','attachment.php?id=1'])check('Anonymous denied '+route,(await anon.request.get(base+'/'+route,{maxRedirects:0})).status()===302);
-  for(const route of ['/.local/owner-accounts.json','/.LOCAL/owner-accounts.json','/config/config.example.php','/CONFIG/config.example.php','/database/schema.sql','/tools/provision-accounts.php','/.git/config'])check('Private path denied '+route,(await anon.request.get(base+route)).status()===403);
+  for(const route of ['/.local/owner-accounts.json','/.LOCAL/owner-accounts.json','/backend/config/config.example.php','/BACKEND/CONFIG/CONFIG.EXAMPLE.PHP','/database/schema.sql','/backend/tools/provision-accounts.php','/.git/config'])check('Private path denied '+route,(await anon.request.get(base+route)).status()===403);
  }finally{
   if(created&&admin){await admin.goto(base+'/users.php');const button=admin.getByRole('row').filter({hasText:username}).getByRole('button',{name:'Deactivate',exact:true});if(await button.count())await Promise.all([admin.waitForNavigation(),button.click()]);check('Audit account left deactivated',await admin.getByRole('row').filter({hasText:username}).getByRole('button',{name:'Activate',exact:true}).count()===1);}
   await browser.close();

@@ -1,6 +1,12 @@
 Options -Indexes
-<FilesMatch "(?i)^(SPEC\.md|README\.md|AGENTS\.md|CLAUDE\.md|\.gitignore)$">
+<FilesMatch "(?i)^(SPEC[.]md|README[.]md|AGENTS[.]md|CLAUDE[.]md|[.]gitignore)$">
     Require all denied
 </FilesMatch>
 RewriteEngine On
-RewriteRule ^(?:\.git|\.local|_brain|app|config|database|tests|tools|storage)(?:/|$) - [F,L,NC]
+RewriteRule ^(?:[.]git|[.]local|_brain|backend|database|documentation|tests|tools)(?:/|$) - [F,L,NC]
+RewriteCond %{THE_REQUEST} [[:space:]]/+frontend/ [NC]
+RewriteRule ^frontend/.*[.]php$ - [F,L,NC]
+RewriteRule ^$ frontend/index.php [END]
+RewriteRule ^assets/(.*)$ frontend/assets/$1 [END]
+RewriteRule ^favicon[.]svg$ frontend/favicon.svg [END]
+RewriteRule ^([A-Za-z0-9_-]+[.]php)$ frontend/$1 [END,NC]
