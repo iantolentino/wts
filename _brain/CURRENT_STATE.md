@@ -1,7 +1,7 @@
 # Current State
 
 ## Current scope
-Local ticketing MVP with creation-time file attachments; employee photos retired. Deployment archive and cPanel layout are prepared. Owner has created the domain and database; production upload/live verification are pending.
+Local ticketing MVP with creation-time file attachments; employee photos retired. cPanel deployment is live and was tested on 2026-09-23. Ticket deletion remains unimplemented in the deployed UI/handler; live QA records are clearly labeled and closed.
 
 ## Verified 2026-09-15
 - 45 workflow checks, 19 supplementary checks, desktop/mobile visual checks and 31 PHP syntax checks passed.
@@ -15,7 +15,7 @@ Local ticketing MVP with creation-time file attachments; employee photos retired
 http://127.0.0.1:8030/login.php; username demo.tl; passwords only in ignored .local/test-accounts.json. Restart tools/start-local.ps1. Existing installs run tools/migrate-ticket-files.php; fresh setup includes migration 002. Never reinitialize existing wheettle_ticketing database or modify cng-ticketing.
 
 ## Next
-Owner has created the cPanel domain and database/user. The upload archive is ready; wait for owner to upload, then verify the live URL with a provided test account. Latest reviewed release is `9819d15` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
+The cPanel site is live and verified. Owner should rotate temporary TL/Management passwords; the cPanel provisioning file is stale for those accounts. If requested, implement and test a permission-checked soft-delete route in `frontend/ticket.php`, then rebuild/redeploy the ZIP. Coordinate cleanup of labeled QA records after an approved delete/cleanup method exists. Deployment source is `a47882f` on `origin/main`. Portable Git: C:/Users/Admin/Downloads/wts-build-tools/git/cmd/git.exe. Exclude credentials, local artifacts, sessions, legacy Word draft and lockfiles.
 
 ## Publication result
 - Published implementation/docs as 449dc0d and verified origin/main matched on 2026-09-15. Local checks passed; hosting details and owner acceptance are next. Git textconv helper unavailable for DOCX diff; repeated inspection with --no-textconv successfully verified credential exclusion.
@@ -59,4 +59,10 @@ Owner has created the cPanel domain and database/user. The upload archive is rea
 - Reorganized deployable source into `frontend/`, `backend/` and `database/`; the root `.htaccess` preserves existing top-level URLs and blocks private/source paths. Local setup/router and deployment docs now use the new paths.
 - Added an editable `accounts.superadmin_initial_password` value to the private local config template and updated the CLI provisioning tool to use it for a new Super Admin account. Existing accounts remain unchanged; initial password change is still required.
 - Built `dist/whittles-cpanel-upload.zip` (51 files). The archive allowlist contains runtime files only and excludes `_brain`, docs, tests, local config/secrets, sessions, and developer tools other than the CLI account provisioner. `_brain` continuity notes are committed to GitHub only.
-- Verified 34 PHP files lint; 45 core, 19 handover, 49 audit, and 62 registration browser checks; desktop/mobile visual checks; and Apache route/private-file behavior (home redirects 302, login/assets 200, backend config and SQL 403). Production upload and live account test remain pending.
+- Verified 34 PHP files lint; 45 core, 19 handover, 49 audit, and 62 registration browser checks; desktop/mobile visual checks; and Apache route/private-file behavior (home redirects 302, login/assets 200, backend config and SQL 403).
+
+## Production cPanel verification 2026-09-23
+- Live URL `https://whittles-ticketing.stratastaff.com` responds over HTTPS; login, CSS, logos, root redirect, reports and expected private-path 403s passed. Five provisioned accounts passed fresh sign-in and role checks.
+- TL and Management accounts completed first-login password changes for testing; they now share a temporary password and owner must replace each with a unique password. Super Admin authenticated with the corrected supplied password and was left unchanged. The original cPanel credential output is stale for the four changed accounts.
+- Live database initially had no staff or tickets. Created QA employee ID 1 (`QA-WHIT-1790146796591`), then 10 uniquely tagged tickets (`QA-LIVE-1790146903549`) to exercise creation, updates, assignment, comments, close/reopen validation, stale-edit rejection, attachment download/access control, and report exports. All 10 tickets were closed after testing; QA employee was marked Exited. No prior records were present or altered.
+- Ticket deletion is not implemented in the deployed handler/UI: a safe `action=delete` attempt returned `Unknown ticket action` and left the ticket intact. The schema and Super Admin role contain soft-delete permission/column, but `frontend/ticket.php` has no delete flow. Subject and issue text are read-only after creation. Full evidence: ignored `.local/qa/prod-live-audit-2026-09-23.md`.
