@@ -107,6 +107,13 @@ function check(name, value) { assert.ok(value, name); results.push(name); consol
     check('Unauthenticated attachment access denied',unauth.status()===302);await anon.close();
     check('Unknown attachment returns 404',(await context.request.get(base+'/attachment.php?id=999999999')).status()===404);
     check('Ticket linked to employee',await page.locator('a[href="employee.php?id='+staffId+'"]').count()===1);
+    const ticketEditForm=page.locator('form').filter({has:page.locator('input[name=action][value=update]')});
+    check('Ticket edit form includes subject and issue details',await ticketEditForm.locator('[name=subject]').count()===1&&await ticketEditForm.locator('[name=issue]').count()===1);
+    const revisedSubject='QA revised request '+run,revisedIssue='Corrected QA request details '+run;
+    await ticketEditForm.locator('[name=subject]').fill(revisedSubject);
+    await ticketEditForm.locator('[name=issue]').fill(revisedIssue);
+    await Promise.all([page.waitForNavigation(),page.getByRole('button',{name:'Save changes',exact:true}).click()]);
+    check('Ticket subject and issue details can be corrected',await page.getByRole('heading',{name:revisedSubject,exact:true}).count()===1&&(await page.locator('body').innerText()).includes(revisedIssue));
     await page.locator('select[name=status]').selectOption('closed');
     await page.getByRole('button',{name:'Save changes',exact:true}).click();
     check('Closing requires resolution',(await page.locator('body').innerText()).includes('Add a resolution before closing'));
@@ -131,6 +138,13 @@ function check(name, value) { assert.ok(value, name); results.push(name); consol
     check('Management cannot create employees',(await mgmtCtx.request.get(base+'/employee-form.php')).status()===403);
     check('Management cannot create tickets',(await mgmtCtx.request.get(base+'/create-ticket.php')).status()===403);
     await mgmt.goto(base+'/reports.php');check('Management can view reports',await mgmt.getByRole('heading',{name:'Reports & exports',exact:true}).count()===1);
+    await mgmt.goto(base+'/ticket.php?id='+ticketId);
+    check('Management does not see the Super Admin delete control',await mgmt.getByRole('button',{name:'Delete ticket',exact:true}).count()===0);
+    check('Management does not see the deleted tickets sidebar link',await mgmt.getByRole('link',{name:'Deleted tickets',exact:true}).count()===0);
+    check('Management cannot open the deleted tickets page',(await mgmtCtx.request.get(base+'/deleted-tickets.php')).status()===403);
+    const mgmtCsrf=await mgmt.locator('[name=csrf_token]').first().inputValue();
+    const mgmtDelete=await mgmtCtx.request.post(base+'/ticket.php?id='+ticketId,{form:{csrf_token:mgmtCsrf,action:'delete'},maxRedirects:0});
+    check('Management cannot delete a ticket by direct POST',mgmtDelete.status()===403,'status='+mgmtDelete.status());
     const viewerCtx=await browser.newContext();await login('viewer',viewerCtx);
     check('Ticket viewer can download ticket evidence',await (await viewerCtx.request.get(base+'/'+downloadPath)).text()===attachmentBody);
     check('Viewer cannot read staff',(await viewerCtx.request.get(base+'/staff.php')).status()===403);
@@ -138,6 +152,9 @@ function check(name, value) { assert.ok(value, name); results.push(name); consol
     check('Viewer cannot export staff',(await viewerCtx.request.get(base+'/export.php?type=staff')).status()===403);
     const adminCtx=await browser.newContext();const admin=await login('admin',adminCtx);
     await admin.goto(base+'/users.php');check('Admin can manage accounts',await admin.getByRole('heading',{name:'Accounts & TLs',exact:true}).count()===1);
+    await admin.goto(base+'/ticket.php?id='+ticketId);
+    check('Super Admin sees the role-restricted soft-delete control',await admin.getByRole('button',{name:'Delete ticket',exact:true}).count()===1);
+    check('Super Admin sees the deleted tickets sidebar link',await admin.getByRole('link',{name:'Deleted tickets',exact:true}).count()===1);
     await page.setViewportSize({width:390,height:844});
     await page.goto(base+'/dashboard.php');
     await page.screenshot({path:path.join(artifact,'mobile.png'),fullPage:true});
