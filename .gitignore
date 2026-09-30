@@ -1,5 +1,6 @@
 /.local/
 /backend/config/config.local.php
+/backend/config/feed.local.php
 /backend/storage/sessions/
 /backend/storage/private/*
 !/backend/storage/private/.htaccess

@@ -18,6 +18,10 @@ function refresh_current_user(): ?array {
 }
 function user_can(string $permissionKey): bool {
     $user = current_user(); if ($user === null) return false;
+    if (($user['role_slug'] ?? '') === 'client-viewer') {
+        if ($permissionKey === 'view_staff') return true;
+        if ($permissionKey === 'manage_staff') return false;
+    }
     $q = db()->prepare('SELECT COALESCE(uo.granted, rp.granted, 0) FROM permissions p LEFT JOIN role_permissions rp ON rp.permission_id = p.id AND rp.role_id = :role_id LEFT JOIN user_permission_overrides uo ON uo.permission_id = p.id AND uo.user_id = :user_id WHERE p.permission_key = :permission_key');
     $q->execute(['role_id' => $user['role_id'], 'user_id' => $user['id'], 'permission_key' => $permissionKey]);
     return (bool) $q->fetchColumn();

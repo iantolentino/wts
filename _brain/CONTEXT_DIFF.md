@@ -1,50 +1,57 @@
 ﻿# Context Diff
 
-- Current commit: c6c1f19af1821483009c5019908a8bfcc8a4a80f
+- Current commit: d3bfe1695067d5a885f1431b06ce098d31da245e
 - Branch: main
-- Base commit: c6c1f19af1821483009c5019908a8bfcc8a4a80f
+- Base commit: d3bfe1695067d5a885f1431b06ce098d31da245e
 
 ## Changed files
 
+- `.gitignore`
 - `.htaccess`
 - `_brain/CONTEXT_DIFF.md`
 - `_brain/CURRENT_STATE.md`
-- `_brain/daily/2026-09-16.md`
-- `_brain/sessions/archive/2026-09-16-before-registration.md`
-- `_brain/sessions/archive/2026-09-16-before-system-audit.md`
+- `_brain/daily/2026-09-24.md`
+- `_brain/daily/2026-09-25.md`
+- `_brain/daily/2026-09-29.md`
+- `_brain/daily/2026-09-30.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-feed-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-full-details-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-manual-layout-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-mixed-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-overview-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-pagination-client-staff-20260929.md`
+- `_brain/sessions/archive/LATEST_HANDOFF-before-reference-layout-20260929.md`
 - `_brain/sessions/LATEST_HANDOFF.md`
-- `app/auth.php`
-- `app/auth-layout.php`
-- `app/bootstrap.php`
-- `app/layout.php`
-- `app/tickets.php`
-- `app/wheettle.php`
-- `assets/css/branding.css`
-- `assets/css/staff-directory.css`
-- `assets/css/wheettle.css`
-- `assets/js/registration.js`
-- `assets/Whittles Body Corp.webp`
-- `change-password.php`
-- `config/config.example.php`
-- `create-ticket.php`
-- `dashboard.php`
-- `documentation/Deployment-Checklist.md`
-- `documentation/System-Audit-2026-09-16.md`
-- `documentation/User-Guide-and-Handover.md`
-- `employee-form.php`
-- `export.php`
-- `history.php`
-- `login.php`
-- `logout.php`
-- `README.md`
-- `register.php`
-- `staff.php`
-- `tests/audit.cjs`
-- `tests/browser.cjs`
-- `tests/registration.cjs`
-- `ticket.php`
-- `tools/provision-accounts.php`
-- `users.php`
+- `backend/app/auth.php`
+- `backend/app/feed.php`
+- `backend/app/layout.php`
+- `backend/app/mixed-tickets.php`
+- `backend/config/feed.example.php`
+- `documentation/Dashboard-Layout-Departments-Upload.md`
+- `documentation/External-Tickets-Upload.md`
+- `documentation/Full-Ticket-Details-Upload.md`
+- `documentation/Manual-Layout-Upload.md`
+- `documentation/Mixed-Tickets-Upload.md`
+- `documentation/Overview-Ticket-Layout-Upload.md`
+- `documentation/Production-Setup-Work-Report-2026-09-24.docx`
+- `documentation/Setup-Checks-2026-09-24.md`
+- `frontend/assets/css/ticket-overview.css`
+- `frontend/dashboard.php`
+- `frontend/external-tickets.php`
+- `frontend/index.php`
+- `frontend/ticket.php`
+- `tests/feed.php`
+- `tests/feed-backup.py`
+- `tests/feed-browser.cjs`
+- `tests/feed-browser-fixture.py`
+- `tests/mixed-browser.cjs`
+- `tests/mixed-browser-fixture.py`
+- `tests/mixed-tickets.php`
+- `tools/build-cpanel-package.ps1`
+- `tools/build-feed-package.ps1`
+- `tools/build-fetcher-comments-package.ps1`
+- `tools/build-manual-layout-upload.ps1`
+- `tools/whittles-feed-backup.php`
 
 ## Use
 

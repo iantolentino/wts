@@ -16,6 +16,7 @@ $includedPaths = @(
     'backend/.htaccess',
     'backend/app',
     'backend/config/config.example.php',
+    'backend/config/feed.example.php',
     'backend/storage/.htaccess',
     'backend/storage/private/.htaccess',
     'backend/tools/provision-accounts.php',

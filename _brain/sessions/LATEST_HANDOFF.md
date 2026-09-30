@@ -1,25 +1,28 @@
 ﻿# Session Handoff
 
-## Status
-The cPanel deployment at https://whittles-ticketing.stratastaff.com is live and was tested on 2026-09-23. Refactor/package source is pushed as `a47882f`. `_brain` notes are in GitHub only; the upload ZIP excludes `_brain`.
+## Current request - 2026-09-30
 
-## Live verification
-All five accounts passed fresh login. Super Admin has expected full access; Team Leader can create/update tickets and staff but cannot administer accounts; the three Management users can view and report but cannot create/edit records. TL and Management accounts now share a temporary test password after first-login change; owner must rotate each separately. Super Admin password was left unchanged.
+Owner wants live deployment (source of truth) synchronized to local and GitHub, then security/speed/functionality checks. Supplied website login but explicitly declined file-level access. Cannot retrieve deployed PHP/config through browser, so do not claim an exact sync or push the existing 45-path dirty tree. Local HEAD and origin/main d3bfe16. Read-only live checks: authenticated dashboard/index/staff/reports work; tested login assets match local bytes; private paths 403; HSTS/CSP absent. Three-sample median response times dashboard 610 ms, index 844 ms, staff 594 ms, reports 610 ms. Local lint 38 PHP files clean, feed 23 and mixed 39 pass; mixed-browser fixture fails after 21 passes at external detail conversation/activity. No production write testing. See daily/2026-09-30.md.
 
-Created QA employee ID 1 (`QA-WHIT-1790146796591`, marked Exited) and 10 tickets IDs 1–10 with prefix `[QA-LIVE-1790146903549]`; all tickets are closed after tests. Ticket 1 retains a small QA text attachment. No pre-existing staff/tickets existed or were modified. Evidence: ignored `.local/qa/prod-live-audit-2026-09-23.md`.
+Continuation: Owner explicitly asks to compare local browser UI/functionality, then publish if matching. Isolated local fixture versus live Dashboard/Tickets layouts and structural workflows match; all live authenticated CSS/images match local bytes. 90 browser checks pass on rerun, live list pagination/CSV/external detail work. Local MySQL still fails Aria/mysql.plugin startup, so normal local authenticated path and exact PHP equivalence remain unverified. Reviewed staged changes for secrets; publication in progress. See daily/2026-09-30.md.
 
-HTTPS login, CSS/logos, root redirect, private-path 403s, five fresh logins, role checks, ticket create/update/comment/close/reopen, stale edit rejection, attachment download/access control, HTML report, ticket CSV and summary CSV passed.
+## Current status - 2026-09-29
 
-## Known gaps / next actions
-- Ticket deletion is absent from the deployed route/UI despite `deleted_at` and `delete_tickets` schema permission. A safe `action=delete` test returns “Unknown ticket action”; no test data was deleted. Main fix target: `frontend/ticket.php`.
-- Ticket subject and issue text cannot be edited after creation; only status, priority, assignee and resolution are editable.
-- The cPanel credentials file is stale for TL and admin1/admin2/admin3 after their temporary test password changes. Keep private and remove after saving needed details. Do not expose passwords in source, docs or reports.
-- If owner requests, implement/test soft delete, create a replacement ZIP (still exclude `_brain`), commit/push, then coordinate redeployment and QA-data cleanup.
+Latest owner requests ticket pagination for all roles, CSV export in other roles, and Whittle client read-only staff list. No ZIP. Completed locally, user upload pending: frontend/index.php and backend/app/auth.php, exactly two runtime files changed this turn. Direct file links provided; overwrite matching frontend/backend paths in live Whittle document root. Earlier ZIP/manual folder has older index and omits this auth change; do not present it as current.
+
+Tickets: 25 rows/page, compact numbered pages/ellipses, First/Previous/Next/Last, aria current/disabled states, count/page display, filters preserved in links. Every authenticated view_all_tickets user can export CSV from this list, no separate export_tickets grant required; all filtered rows across pages, same existing scope. Team Members own local tickets only, source feed failure blocks incomplete export. Other legacy export.php routes/permissions unchanged.
+
+Client role identified by client-viewer: auth.php user_can grants view_staff and denies manage_staff before DB grants/overrides. Existing staff list/history/departments/profile reads and sidebar become available; profile edit/add/history-note buttons hidden and direct editor GET/POST/profile-note POST denied. No DB grants/migrations needed. Other permission logic unchanged, source tickets still read-only, native local ticket handlers preserved.
+
+Validation: 90 isolated browser checks passed (previous 64 expanded) with SQLite staff fixture, including large 10-page navigation, empty/oversized pages, filter retention, all-eight-role ticket exports and own-ticket scope, client staff/profile access and denied direct writes even with database manage_staff grant. PHP syntax passed index/auth. MySQL real data unavailable, no repair/reset performed. Live upload/deployment not performed.
+
+Persistent layout scope: CNG composition only with Whittle colors/logos, no notifications, Dashboard rename and removed hero/intro. Ten mixed columns, all permitted counts/status/source/month graphs, canonical source departments Support IT Department, HR HR Department, Training LND Department, Requisition Requisition. WTS adapters.php latest source change emits these; source config/API auth token/password unchanged. Prior live layout mismatch was old deployed frontend/layout/CSS (read-only evidence .local/tickets-layout-check/); prior layout ZIP still available for missing base update only. Source/external comments readonly; Carly matching restrictions and five-member scope preserved. No CNG changes.
+
+Previous handoff archived in sessions/archive/LATEST_HANDOFF-before-pagination-client-staff-20260929.md. Tests changed tests/mixed-browser.cjs and mixed-browser-fixture.py; no test files need upload. Existing uncommitted project changes preserved. No ZIP made this turn.
 
 ## Git Baseline
 
-- Base commit: a47882fc2aca1e9cd1e9810ea7d0a063d2a28350
+- Base commit: d3bfe1695067d5a885f1431b06ce098d31da245e
 - Branch: main
 - Working tree at handoff: has uncommitted changes
-- Verification: live test on 2026-09-23 — 5/5 fresh logins, 10/10 test tickets created/updated/closed, report exports and attachment/security checks passed; deletion unsupported.
-
+- Verification: [tests/checks run, or not yet run]
