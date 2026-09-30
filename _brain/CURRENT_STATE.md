@@ -1,5 +1,9 @@
 # Current State
 
+## Live/local behavioral sync recheck - 2026-09-30
+
+- Real XAMPP local snapshot and live passed 36 paired checks: nine authenticated pages, five list/filter states, external detail, read-only POST denial, and five byte-identical CSV/report exports. Local DB counts match live visible counts (four users, zero staff/local tickets, three departments). No production writes. Existing snapshot and private config unchanged; full write/other-role parity not asserted.
+
 ## XAMPP live-snapshot comparison - 2026-09-30
 
 - XAMPP MariaDB/Apache run after backed-up Aria repair. Isolated live dump imported into wheettle_live_snapshot_20260930; existing local DB unchanged. One mysql.proxies_priv row was unrecoverable; original backup retained.

@@ -1,5 +1,9 @@
 ﻿# Session Handoff
 
+## Real local/live parity recheck - 2026-09-30
+
+36 paired checks passed against XAMPP local snapshot and live: Super Admin login, nine pages with identical normalized visible text/structure, five list/filter states, external detail/read-only POST denial, and five byte-identical CSV/report exports. Local snapshot table/record counts agree with live-visible counts. Git local and origin/main were 7a0566c with clean tree before this note. No live writes; full mutation and other-role parity remains untested. See daily/2026-09-30.md.
+
 ## XAMPP repaired and real comparison - 2026-09-30
 
 XAMPP MySQL/Apache now work. Repaired Aria corruption after full backup at C:/xampp/mysql/data-backup-before-aria-repair-20260930; one unreadable mysql.proxies_priv row lost, original preserved. User live SQL dump imported into new wheettle_live_snapshot_20260930, existing local DB untouched. Ignored backend/config/config.local.php points app at snapshot, without BOM. Local Super Admin login works via XAMPP Apache and PHP 8030. Nine live/local pages match normalized visible text; CSV byte identical. No live writes. See daily/2026-09-30.md.
@@ -30,7 +34,7 @@ Previous handoff archived in sessions/archive/LATEST_HANDOFF-before-pagination-c
 
 ## Git Baseline
 
-- Base commit: dcffac0f7355385ab851efe9c4d03ea648fe3c85
+- Base commit: 7a0566cc86bbe314cc0b8dcd1d6d0cc3df775ce8
 - Branch: main
 - Working tree at handoff: has uncommitted changes
 - Verification: [tests/checks run, or not yet run]
