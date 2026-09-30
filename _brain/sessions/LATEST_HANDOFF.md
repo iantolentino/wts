@@ -8,6 +8,8 @@ Continuation: Owner explicitly asks to compare local browser UI/functionality, t
 
 Published tested local revision 31886a4 to origin/main; confirmed remote hash and post-push live login/core pages/assets. Site PHP source was not retrieved; normal local DB path remains unavailable. No production writes. Finish with that limit explicit.
 
+Owner clarified behavioral matching matters, rather than exact PHP file identity. Ran 20 additional live browser checks: Super Admin login, ten routes, 25+14 pagination, no-result search, CSV for all 39 tickets, external detail/read-only POST 405, mobile login width. All passed and agree with isolated local fixture behavior. Live create/edit/delete untested because production currently lacks local staff/tickets; avoid claiming all functionality matches.
+
 ## Current status - 2026-09-29
 
 Latest owner requests ticket pagination for all roles, CSV export in other roles, and Whittle client read-only staff list. No ZIP. Completed locally, user upload pending: frontend/index.php and backend/app/auth.php, exactly two runtime files changed this turn. Direct file links provided; overwrite matching frontend/backend paths in live Whittle document root. Earlier ZIP/manual folder has older index and omits this auth change; do not present it as current.
@@ -24,7 +26,7 @@ Previous handoff archived in sessions/archive/LATEST_HANDOFF-before-pagination-c
 
 ## Git Baseline
 
-- Base commit: 31886a47a15782dadfceb6a742930afb3c06e2cf
+- Base commit: 0be135770285512f23d1a2292ed0b2c8307b851e
 - Branch: main
 - Working tree at handoff: has uncommitted changes
 - Verification: [tests/checks run, or not yet run]
