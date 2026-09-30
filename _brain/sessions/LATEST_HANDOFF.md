@@ -6,6 +6,8 @@ Owner wants live deployment (source of truth) synchronized to local and GitHub, 
 
 Continuation: Owner explicitly asks to compare local browser UI/functionality, then publish if matching. Isolated local fixture versus live Dashboard/Tickets layouts and structural workflows match; all live authenticated CSS/images match local bytes. 90 browser checks pass on rerun, live list pagination/CSV/external detail work. Local MySQL still fails Aria/mysql.plugin startup, so normal local authenticated path and exact PHP equivalence remain unverified. Reviewed staged changes for secrets; publication in progress. See daily/2026-09-30.md.
 
+Published tested local revision 31886a4 to origin/main; confirmed remote hash and post-push live login/core pages/assets. Site PHP source was not retrieved; normal local DB path remains unavailable. No production writes. Finish with that limit explicit.
+
 ## Current status - 2026-09-29
 
 Latest owner requests ticket pagination for all roles, CSV export in other roles, and Whittle client read-only staff list. No ZIP. Completed locally, user upload pending: frontend/index.php and backend/app/auth.php, exactly two runtime files changed this turn. Direct file links provided; overwrite matching frontend/backend paths in live Whittle document root. Earlier ZIP/manual folder has older index and omits this auth change; do not present it as current.
@@ -22,7 +24,7 @@ Previous handoff archived in sessions/archive/LATEST_HANDOFF-before-pagination-c
 
 ## Git Baseline
 
-- Base commit: d3bfe1695067d5a885f1431b06ce098d31da245e
+- Base commit: 31886a47a15782dadfceb6a742930afb3c06e2cf
 - Branch: main
 - Working tree at handoff: has uncommitted changes
 - Verification: [tests/checks run, or not yet run]
