@@ -1,5 +1,9 @@
 ﻿# Session Handoff
 
+## XAMPP repaired and real comparison - 2026-09-30
+
+XAMPP MySQL/Apache now work. Repaired Aria corruption after full backup at C:/xampp/mysql/data-backup-before-aria-repair-20260930; one unreadable mysql.proxies_priv row lost, original preserved. User live SQL dump imported into new wheettle_live_snapshot_20260930, existing local DB untouched. Ignored backend/config/config.local.php points app at snapshot, without BOM. Local Super Admin login works via XAMPP Apache and PHP 8030. Nine live/local pages match normalized visible text; CSV byte identical. No live writes. See daily/2026-09-30.md.
+
 ## Current request - 2026-09-30
 
 Owner wants live deployment (source of truth) synchronized to local and GitHub, then security/speed/functionality checks. Supplied website login but explicitly declined file-level access. Cannot retrieve deployed PHP/config through browser, so do not claim an exact sync or push the existing 45-path dirty tree. Local HEAD and origin/main d3bfe16. Read-only live checks: authenticated dashboard/index/staff/reports work; tested login assets match local bytes; private paths 403; HSTS/CSP absent. Three-sample median response times dashboard 610 ms, index 844 ms, staff 594 ms, reports 610 ms. Local lint 38 PHP files clean, feed 23 and mixed 39 pass; mixed-browser fixture fails after 21 passes at external detail conversation/activity. No production write testing. See daily/2026-09-30.md.
@@ -26,7 +30,7 @@ Previous handoff archived in sessions/archive/LATEST_HANDOFF-before-pagination-c
 
 ## Git Baseline
 
-- Base commit: 0be135770285512f23d1a2292ed0b2c8307b851e
+- Base commit: dcffac0f7355385ab851efe9c4d03ea648fe3c85
 - Branch: main
 - Working tree at handoff: has uncommitted changes
 - Verification: [tests/checks run, or not yet run]

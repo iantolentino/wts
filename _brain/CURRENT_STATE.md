@@ -1,5 +1,10 @@
 # Current State
 
+## XAMPP live-snapshot comparison - 2026-09-30
+
+- XAMPP MariaDB/Apache run after backed-up Aria repair. Isolated live dump imported into wheettle_live_snapshot_20260930; existing local DB unchanged. One mysql.proxies_priv row was unrecoverable; original backup retained.
+- Local Super Admin signs in via XAMPP Apache and PHP 8030. Nine authenticated pages match live visible text/structure; ticket CSV byte identical. Private config remains HTTP 403. No live writes or tracked source changes.
+
 ## Sync and audit request - 2026-09-30
 
 - Live is owner's source of truth, but only website login is available; owner declined file-level access. Exact server-side source comparison/sync cannot be completed through HTTP. Git local HEAD equals origin/main at d3bfe16, while 45 working-tree paths differ/untracked. No commit/push, production edits or live data writes made.
