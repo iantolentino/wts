@@ -7,7 +7,7 @@ try{
         csv_download('whittles-staff-'.date('Y-m-d'),['Employee code','Name','Position','Shift schedule','Department','Team','Team leader','Start date','Exit date','Status','Notes'],$rows);
     }elseif($type==='tickets'){
         require_permission('export_tickets');[$where,$params]=ticket_filter($_GET,$user);
-        $rows=query('SELECT t.ticket_number,t.subject,t.employee_name,d.name department,t.category,t.priority,t.status,u.full_name assignee,t.issue,t.resolution,t.created_at,t.closed_at FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id'.$where.' ORDER BY t.id DESC',$params);
+        $rows=query('SELECT t.ticket_number,t.subject,t.employee_name,d.name department,t.category,t.priority,t.status,COALESCE(u.full_name,t.manual_assignee_name) assignee,t.issue,t.resolution,t.created_at,t.closed_at FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id'.$where.' ORDER BY t.id DESC',$params);
         csv_download('whittles-tickets-'.date('Y-m-d'),['Ticket','Subject','Employee','Department','Category','Priority','Status','Assigned to','Issue','Resolution','Created','Closed'],$rows);
     }elseif($type==='history'){
         require_permission('export_staff');$source=$_GET;unset($source['from'],$source['to']);[$where,$params]=staff_filter($source);

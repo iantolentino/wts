@@ -43,7 +43,7 @@ CREATE TABLE notifications (
 CREATE TABLE tickets (
   id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY, ticket_number VARCHAR(24) NOT NULL UNIQUE, issue_escalator VARCHAR(150) NOT NULL, subject VARCHAR(255) NOT NULL,
   category VARCHAR(80) NOT NULL, subcategory VARCHAR(80) NULL, department_id BIGINT UNSIGNED NOT NULL, employee_name VARCHAR(150) NOT NULL, description TEXT NOT NULL, issue TEXT NULL, resolution TEXT NULL,
-  status ENUM('open','in_progress','pending','closed') NOT NULL DEFAULT 'open', priority ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal', assignee_id BIGINT UNSIGNED NULL, created_by BIGINT UNSIGNED NOT NULL,
+  status ENUM('open','in_progress','pending','closed') NOT NULL DEFAULT 'open', priority ENUM('low','normal','high','urgent') NOT NULL DEFAULT 'normal', assignee_id BIGINT UNSIGNED NULL, manual_assignee_name VARCHAR(150) NULL, created_by BIGINT UNSIGNED NOT NULL,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP, updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, closed_at DATETIME NULL,
   deleted_at DATETIME NULL, deleted_by BIGINT UNSIGNED NULL,
   KEY idx_tickets_dashboard(deleted_at,status,updated_at), KEY idx_tickets_department(department_id,deleted_at), KEY idx_tickets_assignee(assignee_id,deleted_at),

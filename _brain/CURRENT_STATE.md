@@ -1,5 +1,11 @@
 # Current State
 
+## Local ticket manual entry - 2026-10-05
+
+Fixed local create-ticket form: employee, department, category and assignee retain dropdowns with manual input alternatives. Local staff_directory has zero rows; no employee list can be populated without actual staff records. Manual employee is ticket text with nullable staff link; manual assignee is ticket text and creates no account. New department is saved transactionally and custom categories appear in later dropdowns. Assignment permission enforced on manual name changes; list/detail/CSV show manual assignee.
+Applied additive manual_assignee_name migration to configured local DB; Apache/MySQL running. Verified real authenticated HTTP creation, update, list/CSV and category dropdown against MySQL, removed QA ticket/department/session. PHP lint and 39 mixed/23 feed checks passed. At initial local verification, GitHub/cPanel were unchanged; see later deployment confirmation below. Future hosting update requires database/004_manual_ticket_assignee.sql before four PHP runtime files (create-ticket, ticket, export, mixed-tickets). Migration CLI is idempotent. No actual staff records invented.
+
+
 ## Live/local behavioral sync recheck - 2026-09-30
 
 - Real XAMPP local snapshot and live passed 36 paired checks: nine authenticated pages, five list/filter states, external detail, read-only POST denial, and five byte-identical CSV/report exports. Local DB counts match live visible counts (four users, zero staff/local tickets, three departments). No production writes. Existing snapshot and private config unchanged; full write/other-role parity not asserted.
@@ -141,3 +147,8 @@ The cPanel site is live. The old TL/Management accounts are inactive; replacemen
 - Local verification passed: browser 49, handover 19, authorization audit 49, soft-delete regression 6, and PHP lint. Rebuilt `dist/whittles-cpanel-upload.zip` with 51 allowlisted runtime files. Live behavior remains unchanged until the owner uploads the ZIP.
 
 - Owner now requests one-shot ZIP: dist/whittles-layout-one-shot-upload.zip prepared with exactly the eight manual PHP/CSS paths, verified bytes and allowlist, no configuration/token/password files. Extract into live document root containing frontend/backend, overwrite. This supersedes manual-only preference; deployment remains owner action.
+
+## Deployment confirmation and GitHub publication - 2026-10-05
+
+Owner confirmed the ticket changes were tested and deployed live. Live deployment was performed by the owner; this session did not independently retest live. Created an attachment test text file and a non-Super Admin password reset SQL file in Downloads; owner confirmed the reset worked. Neither file nor password/hash values are included in GitHub.
+Owner authorized publication to https://github.com/iantolentino/wts.git, main. Reviewed scoped changes, confirmed origin URL and no remote divergence, reran syntax checks for five PHP files plus 39 mixed-ticket and 23 feed checks (all pass). Publication includes four runtime PHP files, fresh-install schema, additive migration SQL, idempotent CLI migration and continuity notes. Existing private local config and database dumps remain excluded.

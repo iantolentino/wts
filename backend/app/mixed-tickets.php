@@ -4,7 +4,7 @@ require_once __DIR__ . '/feed.php';
 /** Shared by Tickets and Overview so totals use the same visibility rules. */
 function mixed_ticket_load(array $user, bool $includeExternal = true): array {
     [$where,$params]=ticket_filter([],$user);
-    $local=query("SELECT t.*,d.name department_name,u.full_name assignee_name,c.full_name creator_name,
+    $local=query("SELECT t.*,d.name department_name,COALESCE(u.full_name,t.manual_assignee_name) assignee_name,c.full_name creator_name,
         GREATEST(t.updated_at,COALESCE((SELECT MAX(tc.created_at) FROM ticket_comments tc WHERE tc.ticket_id=t.id),t.updated_at)) updated_at,
         (SELECT GROUP_CONCAT(au.full_name ORDER BY au.full_name SEPARATOR ', ') FROM ticket_assignees ta JOIN users au ON au.id=ta.user_id WHERE ta.ticket_id=t.id) assignee_names,
         (SELECT GROUP_CONCAT(ad.name ORDER BY ad.name SEPARATOR ', ') FROM ticket_departments td JOIN departments ad ON ad.id=td.department_id WHERE td.ticket_id=t.id) department_names
