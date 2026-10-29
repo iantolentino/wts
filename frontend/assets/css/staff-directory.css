@@ -55,3 +55,5 @@
  .wts .directory-table tbody{grid-template-columns:1fr;padding:0 14px 16px}
  .directory-list-note{padding:16px 18px;line-height:1.6}
 }
+
+.staff-directory .button{padding:8px 12px;min-height:36px;font-size:12px}

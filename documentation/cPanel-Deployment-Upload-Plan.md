@@ -24,8 +24,12 @@ In phpMyAdmin, select the database you created. For a fresh empty database, use 
 1. database/schema.sql
 2. database/001_wheettle.sql
 3. database/002_ticket_files.sql
+4. database/005_external_ticket_notes.sql
+5. database/006_ticket_visibility.sql
+6. database/007_session_version.sql
+7. database/008_source_account_cutoffs.sql
 
-Wait for the success message after each import. The first file creates the base tables and roles, migration 001 adds Wheettle staff history and permissions, and migration 002 adds private ticket attachment bytes. Do not import schema.sql into an existing application database. Back up an existing database first and apply only migrations it is missing.
+Wait for the success message after each import. The first file creates the base tables and roles, migration 001 adds Wheettle staff history and permissions, migration 002 adds private ticket attachment bytes, and migrations 005–008 add notes, visibility, session invalidation and source cutoffs. Migration 004 is for older databases because the fresh schema includes its column. Do not import schema.sql into an existing application database. Back up an existing database first and apply only migrations it is missing.
 
 ## Configure the application and Super Admin
 

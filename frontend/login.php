@@ -10,7 +10,7 @@ if($_SERVER['REQUEST_METHOD']==='POST'){
     else{
         $user=query('SELECT * FROM users WHERE username=?',[$username])->fetch();
         if($user && password_verify($password,$user['password_hash']) && $user['is_active'] && $user['approval_status']==='approved'){
-            query('DELETE FROM login_attempts WHERE bucket=?',[$bucket]);session_regenerate_id(true);$_SESSION['user_id']=$user['id'];query('UPDATE users SET last_login_at=NOW() WHERE id=?',[$user['id']]);redirect($user['must_change_password']?'change-password.php':'dashboard.php');
+            query('DELETE FROM login_attempts WHERE bucket=?',[$bucket]);session_regenerate_id(true);$_SESSION['user_id']=$user['id'];$_SESSION['session_version']=(int)$user['session_version'];query('UPDATE users SET last_login_at=NOW() WHERE id=?',[$user['id']]);redirect($user['must_change_password']?'change-password.php':'dashboard.php');
         }
         query('INSERT INTO login_attempts(bucket,failures,last_attempt) VALUES(?,1,NOW()) ON DUPLICATE KEY UPDATE failures=IF(last_attempt<DATE_SUB(NOW(),INTERVAL 15 MINUTE),1,failures+1),last_attempt=NOW()',[$bucket]);
         $error='Invalid username or password, or the account is inactive.';

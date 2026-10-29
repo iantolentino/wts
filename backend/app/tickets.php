@@ -65,6 +65,7 @@ function ticket_scope_sql(array $user, array &$params, string $scope = ''): stri
 }
 function require_ticket_visible(array $user, int $ticketId): void {
     $role = (string) ($user['role_slug'] ?? '');
+    if (in_array($role,['management','client-viewer'],true) && query("SELECT 1 FROM ticket_visibility WHERE ticket_key=? AND confidential=1",['whittle:'.$ticketId])->fetchColumn()) { http_response_code(404); exit('Ticket not found.'); }
     if ($role !== 'team-member') return;
     $q = db()->prepare('SELECT 1 FROM tickets t WHERE t.id = ? AND t.created_by = ?');
     $q->execute([$ticketId, $user['id']]);

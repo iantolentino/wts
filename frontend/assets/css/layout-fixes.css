@@ -14,3 +14,12 @@ body.wts.login-page{padding:40px}
 @media(max-width:760px){.wts .topbar{min-height:0}.wts .nav{padding-top:0}.wts .app-header{right:auto}.wts .app-header-actions{margin-left:auto}body.wts.login-page{padding:24px}.wts .page>.content-shell>section.panel{padding:20px}.wts .page>.content-shell>section.panel.flush{padding:0}.wts .page>.content-shell>section.hero-strip{padding:21px}.wts .page>.content-shell>section.hero-strip h2{font-size:22px}}
 @media print{body.wts:not(.auth-page){padding:0}}
 @media(max-width:760px){.wts .sidebar-bottom{display:flex;flex-wrap:wrap;gap:16px;padding:8px 10px 0;margin:0;font-size:11px}.wts .sidebar-bottom .muted{display:none}}
+
+.wts .back-link{display:inline-flex;align-items:center;padding:9px 14px;border:1px solid #d9e4e7;border-radius:7px;background:#fff;color:#285e67;text-decoration:none;font-weight:600}.wts .back-link:hover{background:#eef5f5}.wts .sidebar-bottom .button{justify-content:center;text-decoration:none}
+
+.wts .cutoff-dialog{width:min(480px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;border:1px solid #d9e4e7;border-radius:12px;padding:24px;background:#fff;color:var(--wts-ink);box-shadow:0 16px 48px #122c3840}
+.wts .cutoff-dialog::backdrop{background:#162b3670}
+.wts .cutoff-dialog label{display:block;margin-top:16px}
+.wts .cutoff-dialog .cutoff-checkbox{display:flex;align-items:center;gap:8px}
+.wts .cutoff-dialog .cutoff-checkbox input{width:16px;height:16px;min-height:0;margin:0;padding:0}
+.wts .cutoff-dialog .actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}

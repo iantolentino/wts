@@ -1,0 +1,65 @@
+diff --git a/adapters.php b/adapters.php
+--- a/adapters.php
++++ b/adapters.php
+@@ -4,5 +4,5 @@
+ 
+ /** Read-only SupportCandy adapters, scoped to the five Whittles members. */
+-function fetch_whittles_tickets(PDO $pdo, string $prefix, string $source): array {
++function fetch_whittles_tickets(PDO $pdo, string $prefix, string $source, array $cutoffs = []): array {
+     // Prefixes come exclusively from the fixed adapter registrations below.
+     $patterns = [];
+@@ -16,4 +16,10 @@
+     $requesterPattern = '^[[:space:]]*(' . implode('|', $patterns) . ')[[:space:]]*$';
+ 
++    $cutoffSql=''; $params=['requester_pattern'=>$requesterPattern];
++    foreach ($cutoffs as $email=>$date) {
++        $i=count($params); $emailKey='cutoff_email_'.$i; $dateKey='cutoff_date_'.$i;
++        $cutoffSql .= " AND NOT (LOWER(TRIM(COALESCE(c.email,''))) = :$emailKey AND (DATE(t.date_created) IS NULL OR DATE(t.date_created) = '0000-00-00' OR DATE(t.date_created) > :$dateKey))";
++        $params[$emailKey]=$email; $params[$dateKey]=$date;
++    }
+     $sql = "SELECT t.*, t.id AS ticket_id, c.name AS requester_name,
+                 c.email AS requester_email, s.name AS status_name,
+@@ -25,8 +31,8 @@
+             LEFT JOIN `{$prefix}psmsc_priorities` p ON t.priority = p.id
+             LEFT JOIN `{$prefix}psmsc_categories` cat ON t.category = cat.id
+-            WHERE LOWER(TRIM(c.name)) REGEXP :requester_pattern
++            WHERE LOWER(TRIM(c.name)) REGEXP :requester_pattern $cutoffSql
+             ORDER BY t.date_created DESC";
+     $stmt = $pdo->prepare($sql);
+-    $stmt->execute(['requester_pattern' => $requesterPattern]);
++    $stmt->execute($params);
+     $tickets = [];
+     $rows = $stmt->fetchAll();
+@@ -242,24 +248,24 @@
+ }
+ 
+-function fetch_stratast_support_tickets(PDO $pdo): array {
+-    return fetch_whittles_tickets($pdo, '92CpH3vC_', 'Strata Support Desk');
++function fetch_stratast_support_tickets(PDO $pdo, array $cutoffs = []): array {
++    return fetch_whittles_tickets($pdo, '92CpH3vC_', 'Strata Support Desk', $cutoffs);
+ }
+ function fetch_stratast_support_thread(PDO $pdo, int $ticketId): array {
+     return fetch_whittles_thread($pdo, '92CpH3vC_', $ticketId);
+ }
+-function fetch_stratast_escalations_tickets(PDO $pdo): array {
+-    return fetch_whittles_tickets($pdo, 'Qeby0uHyy_', 'HR Escalation Desk');
++function fetch_stratast_escalations_tickets(PDO $pdo, array $cutoffs = []): array {
++    return fetch_whittles_tickets($pdo, 'Qeby0uHyy_', 'HR Escalation Desk', $cutoffs);
+ }
+ function fetch_stratast_escalations_thread(PDO $pdo, int $ticketId): array {
+     return fetch_whittles_thread($pdo, 'Qeby0uHyy_', $ticketId);
+ }
+-function fetch_stratast_wp346_tickets(PDO $pdo): array {
+-    return fetch_whittles_tickets($pdo, 'wpnm_', 'Training Desk');
++function fetch_stratast_wp346_tickets(PDO $pdo, array $cutoffs = []): array {
++    return fetch_whittles_tickets($pdo, 'wpnm_', 'Training Desk', $cutoffs);
+ }
+ function fetch_stratast_wp346_thread(PDO $pdo, int $ticketId): array {
+     return fetch_whittles_thread($pdo, 'wpnm_', $ticketId);
+ }
+-function fetch_stratast_requisition_tickets(PDO $pdo): array {
+-    return fetch_whittles_tickets($pdo, 'Qeby0uHyy_', 'Requisition Desk');
++function fetch_stratast_requisition_tickets(PDO $pdo, array $cutoffs = []): array {
++    return fetch_whittles_tickets($pdo, 'Qeby0uHyy_', 'Requisition Desk', $cutoffs);
+ }
+ function fetch_stratast_requisition_thread(PDO $pdo, int $ticketId): array {

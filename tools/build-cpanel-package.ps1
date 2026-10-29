@@ -40,7 +40,7 @@ $entries = @($packageFiles | ForEach-Object {
     [pscustomobject]@{ File = $_; Name = $relative.Replace('\', '/') }
 })
 $forbidden = @($entries | Where-Object {
-    $_.Name -match '(^|/)(\.local|_brain|tests|documentation)/|(^|/)config\.local\.php$|(^|/)(owner|test)-accounts\.json$|(^|/)storage/private/(?!\.htaccess$)'
+    $_.Name -match '(^|/)(\.local|_brain|tests|documentation)/|(^|/)(config|feed)\.local\.php$|(^|/)(owner|test)-accounts\.json$|(^|/)storage/private/(?!\.htaccess$)'
 })
 if ($forbidden.Count -gt 0) {
     throw "Private or development files entered the package: $($forbidden.Name -join ', ')"
@@ -55,7 +55,11 @@ $requiredEntries = @(
     'backend/tools/provision-accounts.php',
     'database/schema.sql',
     'database/001_wheettle.sql',
-    'database/002_ticket_files.sql'
+    'database/002_ticket_files.sql',
+    'database/005_external_ticket_notes.sql',
+    'database/006_ticket_visibility.sql',
+    'database/007_session_version.sql',
+    'database/008_source_account_cutoffs.sql'
 )
 foreach ($required in $requiredEntries) {
     if ($entries.Name -notcontains $required) { throw "Deployment package is missing $required" }
@@ -85,7 +89,7 @@ try {
         if ($actualEntries -notcontains $required) { throw "ZIP validation failed: $required is absent" }
     }
     $badEntries = @($actualEntries | Where-Object {
-        $_ -match '(^|/)(\.local|_brain|tests|documentation)/|(^|/)config\.local\.php$|(^|/)(owner|test)-accounts\.json$|(^|/)storage/private/(?!\.htaccess$)'
+        $_ -match '(^|/)(\.local|_brain|tests|documentation)/|(^|/)(config|feed)\.local\.php$|(^|/)(owner|test)-accounts\.json$|(^|/)storage/private/(?!\.htaccess$)'
     })
     if ($badEntries.Count -gt 0) { throw "ZIP validation found private or development files: $($badEntries -join ', ')" }
 } finally {

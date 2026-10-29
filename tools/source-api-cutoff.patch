@@ -1,0 +1,66 @@
+diff --git a/api.php b/api.php
+--- a/api.php
++++ b/api.php
+@@ -17,6 +17,6 @@
+ }
+ 
+-if (($_SERVER['REQUEST_METHOD'] ?? '') !== 'GET') {
+-    header('Allow: GET');
++if (!in_array(($_SERVER['REQUEST_METHOD'] ?? ''), ['GET','OPTIONS'], true)) {
++    header('Allow: GET, OPTIONS');
+     wts_api_error(405, 'method_not_allowed', 'Use GET to read this feed.');
+ }
+@@ -34,4 +34,34 @@
+     wts_api_error(401, 'unauthorized', 'A valid API token is required in X-API-Key or Authorization: Bearer.');
+ }
++
++function wts_cutoff_adapters_ready(): bool {
++    if (!is_file(__DIR__.'/adapters.php') || !is_file(__DIR__.'/team.php')) return false;
++    require_once __DIR__.'/adapters.php';
++    foreach (['fetch_stratast_support_tickets','fetch_stratast_escalations_tickets','fetch_stratast_wp346_tickets','fetch_stratast_requisition_tickets'] as $name) {
++        if (!function_exists($name) || (new ReflectionFunction($name))->getNumberOfParameters() < 2) return false;
++    }
++    return true;
++}
++if (($_SERVER['REQUEST_METHOD'] ?? '') === 'OPTIONS') {
++    if (!wts_cutoff_adapters_ready()) wts_api_error(503, 'cutoff_unavailable', 'Ticket cutoff adapters are not installed.');
++    wts_api_reply(200, ['success'=>true,'schema_version'=>1,'capabilities'=>['source_cutoff_v1']]);
++}
++
++// Optional portal-provided cutoffs are authenticated by the API token above.
++$cutoffHeader = $_SERVER['HTTP_X_WTS_TICKET_CUTOFFS'] ?? '';
++$cutoffs = [];
++if ($cutoffHeader !== '') {
++    if (strlen($cutoffHeader) > 8192) wts_api_error(400, 'invalid_cutoffs', 'Cutoff header is too large.');
++    $decoded = json_decode($cutoffHeader, true);
++    if (!is_array($decoded) || count($decoded) > 50 || substr(ltrim($cutoffHeader),0,1)!=='{') wts_api_error(400, 'invalid_cutoffs', 'Invalid ticket cutoffs.');
++    foreach ($decoded as $email => $date) {
++        if (!is_string($email) || !filter_var($email, FILTER_VALIDATE_EMAIL) || !is_string($date) || !preg_match('/^\d{4}-\d{2}-\d{2}$/D', $date)) wts_api_error(400, 'invalid_cutoffs', 'Invalid ticket cutoff.');
++        $parsed=DateTimeImmutable::createFromFormat('!Y-m-d', $date);
++        if (!$parsed || $parsed->format('Y-m-d') !== $date) wts_api_error(400, 'invalid_cutoffs', 'Invalid cutoff date.');
++        $cutoffs[mb_strtolower(trim($email), 'UTF-8')] = $date;
++    }
++}
++
++if ($cutoffs && !wts_cutoff_adapters_ready()) wts_api_error(503, 'cutoff_unavailable', 'Ticket cutoff adapters are not installed.');
+ 
+ $sources = [
+@@ -66,5 +96,10 @@
+         $pdo = get_connection($configs[$key]);
+         // Reuse the exact browser filter; never load details for an excluded ticket.
+-        foreach ($listFunction($pdo) as $ticket) {
++        foreach ($listFunction($pdo, $cutoffs) as $ticket) {
++            $email=mb_strtolower(trim((string)($ticket['email'] ?? '')), 'UTF-8');
++            if (isset($cutoffs[$email])) {
++                $created=substr((string)($ticket['date'] ?? ''),0,10);
++                if (!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D',$created,$parts) || !checkdate((int)$parts[2],(int)$parts[3],(int)$parts[1]) || $created>$cutoffs[$email]) continue;
++            }
+             if ($id !== null && (int) $ticket['id'] !== (int) $id) continue;
+             $ticket['id'] = (int) $ticket['id'];
+@@ -91,5 +126,5 @@
+     'schema_version' => 1,
+     'fetched_at' => gmdate('Y-m-d\TH:i:s\Z'),
+-    'capabilities' => ['reply_comments', 'assignment_labels', 'last_update', 'full_details', 'internal_notes', 'custom_fields', 'attachment_metadata', 'activity'],
++    'capabilities' => ['reply_comments', 'assignment_labels', 'last_update', 'full_details', 'internal_notes', 'custom_fields', 'attachment_metadata', 'activity', 'source_cutoff_v1'],
+     'sources' => array_keys($selected),
+     'count' => count($tickets),

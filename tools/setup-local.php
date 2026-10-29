@@ -19,6 +19,7 @@ if($exists){
 }
 $pdo->exec(file_get_contents($root.'/database/001_wheettle.sql'));
 $pdo->exec(file_get_contents($root.'/database/002_ticket_files.sql'));
+foreach (['005_external_ticket_notes.sql','006_ticket_visibility.sql','007_session_version.sql','008_source_account_cutoffs.sql'] as $migration) $pdo->exec(file_get_contents($root.'/database/'.$migration));
 $run=function($sql,$args=[])use($pdo){$q=$pdo->prepare($sql);$q->execute($args);return $q;};
 $credentials=[];
 $pdo->beginTransaction();

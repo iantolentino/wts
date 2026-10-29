@@ -131,3 +131,13 @@
 .mixed-table td:nth-child(5) .badge{white-space:nowrap!important;overflow-wrap:normal;font-size:9px;padding:3px 4px}
 @media(max-width:1050px){.ticket-overview .dashboard-chart-grid,.dashboard-lower-grid{grid-template-columns:1fr}.ticket-overview .metric-grid-reference{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:700px){.wts.reference-layout .app-header{height:auto;min-height:76px;position:relative}.wts.reference-layout .page{padding-top:22px}.header-ticket-actions .button{padding:7px;font-size:10px}.wts.reference-layout .account-chip{display:none}.ticket-search-toolbar{flex-wrap:wrap}.ticket-search-field{flex-basis:100%}.ticket-filter-field{flex:1 1 130px}.ticket-date-filter{flex:1 1 145px}.ticket-filter-row .filter-reset{flex:0 0 auto}.ticket-date-filter>div{right:auto;left:0;min-width:220px}.trend-chart svg{height:170px}.ticket-overview .trend-axis .month-column{font-size:9px}.trend-axis{gap:4px}.dashboard-head h2{font-size:16px}.ticket-overview .metric-grid-reference{gap:10px}.ticket-overview .metric-grid-reference .overview-metric{padding:14px;min-height:100px}.dashboard-canvas{gap:12px}}
+
+@media(max-width:700px){
+ .wts .mixed-table,.wts .mixed-table tbody,.wts .mixed-table tr,.wts .mixed-table td{display:block;width:100%;min-width:0}
+ .wts .mixed-table thead{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}
+ .wts .mixed-table tr{padding:12px 16px;border-bottom:1px solid #dce5e8}
+ .wts .mixed-table td{display:block;position:relative;padding:5px 0 5px 35%!important;border:0}
+ .wts .mixed-table td::before{content:attr(data-label);position:absolute;left:0;width:30%;font-size:10px;font-weight:600;color:#62777f;text-transform:uppercase}
+ .wts .mixed-table td.empty{display:block;text-align:center}
+ .wts .mixed-table td.empty::before{display:none}
+}

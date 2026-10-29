@@ -55,6 +55,22 @@ function whittle_feed_decode(string $body): array {
     return $data;
 }
 
+/** Fail closed when a configured cutoff is not supported by the upstream API. */
+function whittle_feed_headers(string $url, string $token): array {
+    $headers=['Accept: application/json','X-API-Key: '.$token];
+    $cutoffs=source_ticket_cutoffs();
+    if (!$cutoffs) return $headers;
+    $encoded=json_encode((object)$cutoffs,JSON_THROW_ON_ERROR);
+    if (strlen($encoded)>8192 || count($cutoffs)>50) throw new RuntimeException('Too many source ticket cutoffs are configured.');
+    $curl=curl_init($url);
+    curl_setopt_array($curl,[CURLOPT_HTTPHEADER=>$headers,CURLOPT_CUSTOMREQUEST=>'OPTIONS',CURLOPT_RETURNTRANSFER=>true,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>15,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2]);
+    $body=curl_exec($curl);$status=(int)curl_getinfo($curl,CURLINFO_HTTP_CODE);curl_close($curl);
+    $probe=is_string($body) && strlen($body)<=8192 ? json_decode($body,true) : null;
+    if($status!==200 || !is_array($probe) || ($probe['success']??false)!==true || (!is_array($probe['capabilities']??null) || !in_array('source_cutoff_v1',$probe['capabilities'],true))) throw new RuntimeException('The source must be updated to support ticket cutoffs before source tickets can be loaded.');
+    $headers[]='X-WTS-Ticket-Cutoffs: '.$encoded;
+    return $headers;
+}
+
 function whittle_feed_fetch(?string $source = null, ?int $id = null): array {
     $configPath = __DIR__ . '/../config/feed.local.php';
     if (!is_file($configPath)) throw new RuntimeException('The external ticket connection has not been configured. Ask your administrator to upload the private feed configuration.');
@@ -68,6 +84,7 @@ function whittle_feed_fetch(?string $source = null, ?int $id = null): array {
     if ($source !== null && !isset(WHITTLE_FEED_SOURCES[$source])) throw new InvalidArgumentException('Unknown ticket source.');
     if ($id !== null && ($source === null || $id < 1)) throw new InvalidArgumentException('Select a source and a valid ticket.');
     if (!function_exists('curl_init')) throw new RuntimeException('Enable the PHP cURL extension to read external tickets.');
+    $headers=whittle_feed_headers($url,$token);
     $params = [];
     if ($source !== null) $params['source'] = $source;
     if ($id !== null) $params['id'] = $id;
@@ -75,7 +92,7 @@ function whittle_feed_fetch(?string $source = null, ?int $id = null): array {
     $body = '';
     $curl = curl_init($url);
     curl_setopt_array($curl, [
-        CURLOPT_HTTPHEADER => ['Accept: application/json', 'X-API-Key: ' . $token],
+        CURLOPT_HTTPHEADER => $headers,
         CURLOPT_FOLLOWLOCATION => false,
         CURLOPT_PROTOCOLS => CURLPROTO_HTTPS,
         CURLOPT_CONNECTTIMEOUT => 10,
@@ -96,10 +113,66 @@ function whittle_feed_fetch(?string $source = null, ?int $id = null): array {
     if ($status === 404) throw new RuntimeException('This ticket is no longer available in the permitted team scope.');
     if ($status !== 200) throw new RuntimeException('The ticket source is temporarily unavailable. Try refreshing later.');
     $data = whittle_feed_decode($body);
+    whittle_feed_verify_cutoffs($data,source_ticket_cutoffs());
     if ($id !== null && (count($data['tickets']) !== 1 || $data['tickets'][0]['source_key'] !== $source || $data['tickets'][0]['id'] !== $id || !isset($data['tickets'][0]['thread']))) {
         throw new RuntimeException('The ticket source returned an unexpected ticket.');
     }
     return $data;
+}
+
+/** Fetch detail records concurrently in bounded groups for CSV exports. */
+/** Apply an inclusive creation-date cutoff to the source requester's exact email. */
+function source_ticket_within_cutoff(array $ticket, array $cutoffs): bool {
+    $email=mb_strtolower(trim((string)($ticket['email']??'')),'UTF-8');
+    if($email==='' || !isset($cutoffs[$email])) return true;
+    $date=substr((string)($ticket['date']??''),0,10);
+    if(!preg_match('/^(\d{4})-(\d{2})-(\d{2})$/D',$date,$parts) || !checkdate((int)$parts[2],(int)$parts[3],(int)$parts[1])) return false;
+    return $date<=$cutoffs[$email];
+}
+function whittle_feed_verify_cutoffs(array $data, array $cutoffs): void {
+    if (!$cutoffs) return;
+    if (!in_array('source_cutoff_v1',$data['capabilities']??[],true)) throw new RuntimeException('The source did not confirm ticket cutoff support.');
+    foreach ($data['tickets'] as $ticket) if (!source_ticket_within_cutoff($ticket,$cutoffs)) throw new RuntimeException('The source returned a ticket beyond a configured cutoff.');
+}
+function source_ticket_cutoffs(): array {
+    $cutoffs=[];foreach(query('SELECT source_email,last_ticket_date FROM source_account_cutoffs') as $row)$cutoffs[mb_strtolower(trim($row['source_email']),'UTF-8')]=$row['last_ticket_date'];return $cutoffs;
+}
+
+function whittle_feed_fetch_many(array $keys): array {
+    if (!$keys) return [];
+    $configPath=__DIR__.'/../config/feed.local.php';
+    if (!is_file($configPath)) throw new RuntimeException('The external ticket connection has not been configured.');
+    $settings=require $configPath; $url=$settings['url']??''; $token=$settings['token']??''; $parts=is_string($url)?parse_url($url):false;
+    if (!$parts || ($parts['scheme']??'')!=='https' || empty($parts['host']) || isset($parts['user']) || isset($parts['pass']) || isset($parts['query']) || isset($parts['fragment']) || !is_string($token) || !preg_match('/^[a-f0-9]{64}$/D',$token)) throw new RuntimeException('The external ticket connection settings are invalid.');
+    $headers=whittle_feed_headers($url,$token);
+    $results=[];
+    foreach(array_chunk($keys,8) as $batch){
+        $multi=curl_multi_init(); $handles=[]; $bodies=[];
+        try {
+            foreach($batch as $i=>$key){
+                $source=$key['source']; $id=$key['id'];
+                if(!isset(WHITTLE_FEED_SOURCES[$source]) || !is_int($id) || $id<1) throw new InvalidArgumentException('Invalid source ticket.');
+                $bodies[$i]=''; $h=curl_init($url.'?'.http_build_query(['source'=>$source,'id'=>$id]));
+                curl_setopt_array($h,[CURLOPT_HTTPHEADER=>$headers,CURLOPT_FOLLOWLOCATION=>false,CURLOPT_PROTOCOLS=>CURLPROTO_HTTPS,CURLOPT_CONNECTTIMEOUT=>10,CURLOPT_TIMEOUT=>30,CURLOPT_SSL_VERIFYPEER=>true,CURLOPT_SSL_VERIFYHOST=>2,CURLOPT_WRITEFUNCTION=>static function($handle,string $chunk) use (&$bodies,$i): int { if(strlen($bodies[$i])+strlen($chunk)>8*1024*1024)return 0; $bodies[$i].=$chunk;return strlen($chunk); }]);
+                $handles[$i]=$h;curl_multi_add_handle($multi,$h);
+            }
+            do { $code=curl_multi_exec($multi,$running); if($code!==CURLM_OK) throw new RuntimeException('Unable to load source tickets.'); if($running) curl_multi_select($multi,1.0); } while($running);
+            foreach($handles as $i=>$h){
+                if(curl_errno($h)!==0 || curl_getinfo($h,CURLINFO_HTTP_CODE)!==200) throw new RuntimeException('Unable to load source ticket details.');
+                $data=whittle_feed_decode($bodies[$i]);whittle_feed_verify_cutoffs($data,source_ticket_cutoffs());$source=$batch[$i]['source'];$id=$batch[$i]['id'];
+                if(count($data['tickets'])!==1 || $data['tickets'][0]['source_key']!==$source || $data['tickets'][0]['id']!==$id || !isset($data['tickets'][0]['thread'])) throw new RuntimeException('The ticket source returned an unexpected ticket.');
+                $results[$source.':'.$id]=$data['tickets'][0];
+            }
+        } finally { foreach($handles as $h){curl_multi_remove_handle($multi,$h);curl_close($h);} curl_multi_close($multi); }
+    }
+    return $results;
+}
+
+function whittle_latest_ticket_update(string $sourceDate, string $noteDate): string {
+    if ($noteDate === '') return $sourceDate;
+    $noteTime=strtotime($noteDate); $sourceTime=strtotime($sourceDate);
+    if ($noteTime === false) return $sourceDate;
+    return $sourceTime === false || $noteTime > $sourceTime ? $noteDate : $sourceDate;
 }
 
 function whittle_feed_text(string $body): string {

@@ -6,10 +6,11 @@ try{
         $rows=query('SELECT s.employee_code,s.full_name,s.position,s.shift_schedule,d.name department,s.team_label,u.full_name team_leader,s.start_date,s.exit_date,s.employment_status,s.notes FROM staff_directory s LEFT JOIN departments d ON d.id=s.department_id LEFT JOIN users u ON u.id=s.tl_id'.$where.' ORDER BY s.full_name',$params);
         csv_download('whittles-staff-'.date('Y-m-d'),['Employee code','Name','Position','Shift schedule','Department','Team','Team leader','Start date','Exit date','Status','Notes'],$rows);
     }elseif($type==='tickets'){
-        require_permission('export_tickets');[$where,$params]=ticket_filter($_GET,$user);
-        $rows=query('SELECT t.ticket_number,t.subject,t.employee_name,d.name department,t.category,t.priority,t.status,COALESCE(u.full_name,t.manual_assignee_name) assignee,t.issue,t.resolution,t.created_at,t.closed_at FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id'.$where.' ORDER BY t.id DESC',$params);
-        csv_download('whittles-tickets-'.date('Y-m-d'),['Ticket','Subject','Employee','Department','Category','Priority','Status','Assigned to','Issue','Resolution','Created','Closed'],$rows);
+        require_permission('export_tickets');$params=['download'=>'csv'];
+        foreach(['q','status','priority','department','assignee','category','from','to','staff_id'] as $key){$value=request_string($_GET,$key);if($value!=='')$params[$key]=$value;}
+        redirect('index.php?'.http_build_query($params));
     }elseif($type==='history'){
+        if(!in_array($user['role_slug'],['super-admin','team-leader'],true)){http_response_code(403);exit('Staff history is restricted.');}
         require_permission('export_staff');$source=$_GET;unset($source['from'],$source['to']);[$where,$params]=staff_filter($source);
         $from=request_string($_GET,'from');$to=request_string($_GET,'to');
         if($from!=='' && $to!=='' && $from>$to)throw new InvalidArgumentException('Invalid history date range.');

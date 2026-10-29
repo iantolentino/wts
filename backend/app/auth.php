@@ -11,17 +11,22 @@ function current_user(bool $refresh = false): ?array {
     if (empty($_SESSION['user_id'])) return $user = null;
     $q = db()->prepare("SELECT u.*, r.name AS role_name, r.slug AS role_slug FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = ? AND u.is_active = 1 AND u.approval_status='approved'");
     $q->execute([$_SESSION['user_id']]);
-    return $user = ($q->fetch() ?: null);
+    $row=$q->fetch();
+    if (!$row || !isset($_SESSION['session_version']) || (int)$_SESSION['session_version'] !== (int)$row['session_version']) { unset($_SESSION['user_id'],$_SESSION['session_version']); return $user=null; }
+    return $user=$row;
 }
 function refresh_current_user(): ?array {
     return current_user(true);
 }
 function user_can(string $permissionKey): bool {
     $user = current_user(); if ($user === null) return false;
-    if (($user['role_slug'] ?? '') === 'client-viewer') {
-        if ($permissionKey === 'view_staff') return true;
-        if ($permissionKey === 'manage_staff') return false;
+    $role = $user['role_slug'] ?? '';
+    if ($role === 'super-admin') return (bool)query('SELECT 1 FROM permissions WHERE permission_key=?',[$permissionKey])->fetchColumn();
+    if (in_array($role, ['management','client-viewer'], true)) {
+        return in_array($permissionKey, ['view_all_tickets','view_staff','view_reports','export_tickets','export_staff','comment_tickets','view_attachments'], true);
     }
+    if (in_array($permissionKey, ['manage_users','manage_roles','delete_tickets'], true)) return false;
+    if ($role === 'team-leader' && in_array($permissionKey, ['create_tickets','edit_tickets','close_tickets','assign_tickets','comment_tickets'], true)) return true;
     $q = db()->prepare('SELECT COALESCE(uo.granted, rp.granted, 0) FROM permissions p LEFT JOIN role_permissions rp ON rp.permission_id = p.id AND rp.role_id = :role_id LEFT JOIN user_permission_overrides uo ON uo.permission_id = p.id AND uo.user_id = :user_id WHERE p.permission_key = :permission_key');
     $q->execute(['role_id' => $user['role_id'], 'user_id' => $user['id'], 'permission_key' => $permissionKey]);
     return (bool) $q->fetchColumn();

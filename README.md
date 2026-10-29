@@ -12,7 +12,7 @@ An independent PHP/MySQL application adapted from the owner's CNG ticketing desi
 
 Run powershell -NoProfile -ExecutionPolicy Bypass -File tools/build-cpanel-package.ps1 to create dist/whittles-cpanel-upload.zip. Extract that ZIP directly into the domain document root. It contains the frontend, backend runtime, protected SQL files and the Super Admin provisioning command; it omits Git, local configuration, credentials, sessions, test data and development files.
 
-For a new database, import database/schema.sql, database/001_wheettle.sql and database/002_ticket_files.sql in that order. Copy backend/config/config.example.php to backend/config/config.local.php and enter the cPanel database details. Set accounts.superadmin_initial_password there before running backend/tools/provision-accounts.php. The password is used only when creating a missing superadmin account; the account requires a password change at first login. Remove the setting after provisioning.
+For a new database, import `database/schema.sql`, `database/001_wheettle.sql`, `database/002_ticket_files.sql`, then migrations `005_external_ticket_notes.sql` through `008_source_account_cutoffs.sql` in numeric order. Migration 004 is only for older databases; the fresh schema already contains its column. Copy backend/config/config.example.php to backend/config/config.local.php and enter the cPanel database details. Set accounts.superadmin_initial_password there before running backend/tools/provision-accounts.php. The password is used only when creating a missing superadmin account; the account requires a password change at first login. Remove the setting after provisioning.
 ## Local testing
 
 URL: **http://127.0.0.1:8030/login.php**
@@ -33,7 +33,7 @@ For a new developer installation only:
 C:\xampp\php\php.exe tools/setup-local.php
 ```
 
-This creates `wheettle_ticketing` using the local XAMPP root account, applies `database/schema.sql` then `database/001_wheettle.sql`, and creates fictional demo records. It refuses an existing database. `--resume-empty-base` is restricted to recovery of a base-only database with no staff, tickets or users. It never drops the database. This is a local development initializer, not a production installer.
+This creates `wheettle_ticketing` using the local XAMPP root account, applies the fresh schema and migrations 001, 002 and 005–008, and creates fictional demo records. It refuses an existing database. `--resume-empty-base` is restricted to recovery of a base-only database with no staff, tickets or users. It never drops the database. This is a local development initializer, not a production installer.
 
 ## Owner test accounts and deployment accounts
 
@@ -49,7 +49,7 @@ C:\xampp\php\php.exe backend/tools/provision-accounts.php --admin-role=managemen
 ```
 
 For deployment, configure `backend/config/config.local.php` for the target database, import
-`database/schema.sql`, `database/001_wheettle.sql`, and `database/002_ticket_files.sql`
+`database/schema.sql`, `database/001_wheettle.sql`, `database/002_ticket_files.sql`, and migrations 005–008
 in that order into an empty database, then run the command with the host's PHP CLI
 and an output path outside the public document root. Existing databases must already
 have the appropriate migrations; do not reimport the base schema. Provisioning creates

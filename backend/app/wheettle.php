@@ -81,10 +81,11 @@ function save_employee(?int $id, array $actor): int {
 }
 function staff_filter(array $source): array {
     $filters=[]; $params=[]; $values=[];
-    foreach (['q','status','department_id','tl_id','team','from','to'] as $key) $values[$key]=trim(request_string($source,$key));
+    foreach (['q','status','department_id','tl_id','team','from','to','position'] as $key) $values[$key]=trim(request_string($source,$key));
     if ($values['q']!=='') { $filters[]='(s.full_name LIKE ? OR s.employee_code LIKE ? OR s.position LIKE ?)'; for($i=0;$i<3;$i++)$params[]='%'.$values['q'].'%'; }
     if(isset(STAFF_STATUSES[$values['status']])) { $filters[]='s.employment_status=?';$params[]=$values['status']; }
     foreach(['department_id','tl_id'] as $key) if(ctype_digit($values[$key]) && (int)$values[$key]>0){$filters[]='s.'.$key.'=?';$params[]=(int)$values[$key];}
+    if($values['position']!==''){$filters[]='s.position=?';$params[]=$values['position'];}
     if($values['team']!==''){$filters[]='s.team_label=?';$params[]=$values['team'];}
     foreach(['from'=>'>=','to'=>'<='] as $key=>$op) if($values[$key]!==''){date_value($values[$key],true);$filters[]='s.start_date'.$op.'?';$params[]=$values[$key];}
     if($values['from']!=='' && $values['to']!=='' && $values['from']>$values['to']) throw new InvalidArgumentException('Start-date range is reversed.');
@@ -92,6 +93,7 @@ function staff_filter(array $source): array {
 }
 function ticket_filter(array $source, array $user): array {
     $where=['t.deleted_at IS NULL'];$params=[];$values=[];
+    if(in_array($user['role_slug']??'', ['management','client-viewer'], true)) $where[]="NOT EXISTS (SELECT 1 FROM ticket_visibility tv WHERE tv.ticket_key=CONCAT('whittle:',t.id) AND tv.confidential=1)";
     foreach(['q','status','priority','department_id','staff_id','assignee_id','from','to'] as $key)$values[$key]=trim(request_string($source,$key));
     if($values['q']!==''){$where[]='(t.subject LIKE ? OR t.ticket_number LIKE ? OR t.employee_name LIKE ?)';for($i=0;$i<3;$i++)$params[]='%'.$values['q'].'%';}
     foreach(['status'=>TICKET_STATUSES,'priority'=>TICKET_PRIORITIES] as $key=>$choices)if(isset($choices[$values[$key]])){$where[]='t.'.$key.'=?';$params[]=$values[$key];}

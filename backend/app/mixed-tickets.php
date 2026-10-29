@@ -1,6 +1,7 @@
 <?php
 declare(strict_types=1);
 require_once __DIR__ . '/feed.php';
+require_once __DIR__ . '/staff-ticket-links.php';
 /** Shared by Tickets and Overview so totals use the same visibility rules. */
 function mixed_ticket_load(array $user, bool $includeExternal = true): array {
     [$where,$params]=ticket_filter([],$user);
@@ -9,9 +10,10 @@ function mixed_ticket_load(array $user, bool $includeExternal = true): array {
         (SELECT GROUP_CONCAT(au.full_name ORDER BY au.full_name SEPARATOR ', ') FROM ticket_assignees ta JOIN users au ON au.id=ta.user_id WHERE ta.ticket_id=t.id) assignee_names,
         (SELECT GROUP_CONCAT(ad.name ORDER BY ad.name SEPARATOR ', ') FROM ticket_departments td JOIN departments ad ON ad.id=td.department_id WHERE td.ticket_id=t.id) department_names
         FROM tickets t JOIN departments d ON d.id=t.department_id LEFT JOIN users u ON u.id=t.assignee_id LEFT JOIN users c ON c.id=t.created_by".$where,$params)->fetchAll();
-    $rows=array_map('mixed_local_ticket',$local); $feed=null; $feedError='';
+    $staffIndex=staff_ticket_directory_index();
+    $rows=array_map(static fn(array $ticket): array => staff_ticket_attach(mixed_local_ticket($ticket),$ticket,false,$staffIndex),$local); $feed=null; $feedError='';
     if ($includeExternal && ($user['role_slug']??'')!=='team-member') {
-        try { $feed=whittle_feed_fetch(); $rows=array_merge($rows,array_map('mixed_external_ticket',$feed['tickets'])); }
+        try { $feed=whittle_feed_fetch(); $cutoffs=source_ticket_cutoffs(); $eligible=array_filter($feed['tickets'],static fn($ticket)=>source_ticket_within_cutoff($ticket,$cutoffs)); $external=array_map(static fn(array $ticket): array => staff_ticket_attach(mixed_external_ticket($ticket),$ticket,true,$staffIndex),$eligible); $latestNotes=query("SELECT CONCAT(source_key,':',source_ticket_id) ticket_key, MAX(created_at) latest FROM external_ticket_notes GROUP BY source_key,source_ticket_id")->fetchAll(PDO::FETCH_KEY_PAIR); foreach($external as &$row) $row['updated']=whittle_latest_ticket_update($row['updated'],$latestNotes[$row['key']]??''); unset($row); $visibility=query("SELECT ticket_key,confidential,deleted_at FROM ticket_visibility WHERE ticket_key NOT LIKE 'whittle:%'")->fetchAll(PDO::FETCH_UNIQUE); $external=array_filter($external,static function($row) use($visibility,$user){$v=$visibility[$row['key']]??null;return !$v || ($v['deleted_at']===null && (!in_array($user['role_slug']??'', ['management','client-viewer'],true) || !$v['confidential']));}); $rows=array_merge($rows,$external); }
         catch (RuntimeException $exception) { $feedError=$exception->getMessage(); }
     }
     return ['rows'=>$rows,'feed'=>$feed,'feed_error'=>$feedError];
@@ -47,14 +49,14 @@ function mixed_ticket_priority(string $priority): string {
 }
 function mixed_local_ticket(array $ticket): array {
     return [
-        'key'=>'whittle:'.$ticket['id'], 'id'=>(int)$ticket['id'], 'origin'=>'Whittle', 'external'=>false,
+        'key'=>'whittle:'.$ticket['id'], 'id'=>(int)$ticket['id'], 'ticket_number'=>$ticket['ticket_number']??'', 'employee'=>$ticket['employee_name']??'', 'description'=>$ticket['description']??'', 'origin'=>'Whittle', 'external'=>false,
         'url'=>'ticket.php?id='.(int)$ticket['id'], 'title'=>$ticket['subject'],
         'requestor'=>$ticket['issue_escalator'] ?: ($ticket['creator_name'] ?? $ticket['employee_name']),
         'status'=>TICKET_STATUSES[$ticket['status']] ?? $ticket['status'], 'status_key'=>$ticket['status'],
         'priority'=>TICKET_PRIORITIES[$ticket['priority']] ?? $ticket['priority'], 'priority_key'=>$ticket['priority'],
         'assignee'=>$ticket['assignee_names'] ?? $ticket['assignee_name'] ?? 'Unassigned',
         'department'=>$ticket['department_names'] ?? $ticket['department_name'] ?? 'Not provided',
-        'category'=>$ticket['category'], 'created'=>$ticket['created_at'], 'updated'=>$ticket['updated_at'], 'staff_id'=>(int)($ticket['staff_id'] ?? 0),
+        'category'=>$ticket['category'], 'created'=>$ticket['created_at'], 'updated'=>$ticket['updated_at'], 'staff_id'=>(int)($ticket['staff_id'] ?? 0), 'issue'=>$ticket['issue'] ?? $ticket['description'] ?? '', 'resolution'=>$ticket['resolution'] ?? '', 'closed'=>$ticket['closed_at'] ?? '',
     ];
 }
 function mixed_external_ticket(array $ticket): array {
@@ -66,7 +68,7 @@ function mixed_external_ticket(array $ticket): array {
         'priority'=>$ticket['priority'], 'priority_key'=>mixed_ticket_priority($ticket['priority']),
         'assignee'=>$ticket['assignee'] ?? (!empty($ticket['agent']) ? 'Agent #'.$ticket['agent'] : 'Unassigned'),
         'department'=>WHITTLE_FEED_DEPARTMENTS[$ticket['source_key']], 'category'=>$ticket['category'],
-        'created'=>$ticket['date'], 'updated'=>$ticket['last_update'] ?? '', 'staff_id'=>0,
+        'created'=>$ticket['date'], 'updated'=>$ticket['last_update'] ?? '', 'staff_id'=>0, 'source_key'=>$ticket['source_key'],
     ];
 }
 function mixed_ticket_filter(array $source): array {
@@ -76,15 +78,16 @@ function mixed_ticket_filter(array $source): array {
         $filters[$key]=trim(request_string($source,$key));
         if (strlen($filters[$key])>250) throw new InvalidArgumentException('Use a shorter ticket filter.');
     }
+    if ($filters['staff_id']!=='' && (!ctype_digit($filters['staff_id']) || filter_var($filters['staff_id'], FILTER_VALIDATE_INT)===false || (int)$filters['staff_id']<1)) throw new InvalidArgumentException('Choose a valid staff member.');
     foreach (['from','to'] as $key) if ($filters[$key]!=='') date_value($filters[$key],true);
     if ($filters['from']!=='' && $filters['to']!=='' && $filters['from']>$filters['to']) throw new InvalidArgumentException('Ticket date range is reversed.');
     return $filters;
 }
 function mixed_ticket_rows(array $rows,array $filters): array {
     $rows=array_values(array_filter($rows,static function(array $row) use($filters): bool {
-        if ($filters['q']!=='' && mb_stripos(implode(' ',[$row['id'],$row['key'],$row['title'],$row['requestor'],$row['assignee'],$row['department'],$row['category']]),$filters['q'])===false) return false;
+        if ($filters['q']!=='' && mb_stripos(implode(' ',[$row['id'],$row['key'],$row['title'],$row['requestor'],$row['assignee'],$row['department'],$row['category'],implode(' ',array_column($row['linked_staff']??[],'full_name')),implode(' ',array_column($row['linked_staff']??[],'employee_code'))]),$filters['q'])===false) return false;
         foreach (['status'=>'status_key','priority'=>'priority_key','department'=>'department','assignee'=>'assignee','category'=>'category','origin'=>'origin'] as $filter=>$field) if ($filters[$filter]!=='' && $filters[$filter]!==$row[$field]) return false;
-        if ($filters['staff_id']!=='' && (int)$filters['staff_id']>0 && (int)$filters['staff_id']!==$row['staff_id']) return false;
+        if ($filters['staff_id']!=='' && (int)$filters['staff_id']>0 && !in_array((int)$filters['staff_id'],$row['staff_ids']??[$row['staff_id']],true)) return false;
         $created=substr($row['created'],0,10);
         return ($filters['from']==='' || $created>=$filters['from']) && ($filters['to']==='' || $created<=$filters['to']);
     }));

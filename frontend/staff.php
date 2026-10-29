@@ -8,24 +8,25 @@ $rows=query('SELECT s.*,d.name department_name,u.full_name tl_name FROM staff_di
 $counts=array_fill_keys(array_keys(STAFF_STATUSES),0);
 foreach(query('SELECT s.employment_status,COUNT(*) total FROM staff_directory s'.$countWhere.' GROUP BY s.employment_status',$countParams) as $count)$counts[$count['employment_status']]=(int)$count['total'];
 $departments=active_departments();
+$positions=query("SELECT DISTINCT position FROM staff_directory WHERE position<>'' ORDER BY position")->fetchAll();
 $leaders=query("SELECT u.id,u.full_name FROM users u JOIN roles r ON r.id=u.role_id WHERE r.slug='team-leader' AND (u.approval_status='approved' OR EXISTS(SELECT 1 FROM staff_directory s WHERE s.tl_id=u.id)) ORDER BY u.full_name")->fetchAll();
 $teams=query("SELECT DISTINCT team_label FROM staff_directory WHERE team_label<>'' ORDER BY team_label")->fetchAll();
 $extraFilters=$filters['team']!=='' || $filters['from']!=='' || $filters['to']!=='';
 $hasFilters=count(array_filter($filters,fn($v)=>$v!==''))>0;
-$labels=['q'=>'Search','status'=>'Status','department_id'=>'Department','tl_id'=>'Team leader','team'=>'Team','from'=>'Started from','to'=>'Started to'];
+$labels=['position'=>'Role','q'=>'Search','status'=>'Status','department_id'=>'Department','tl_id'=>'Team leader','team'=>'Team','from'=>'Started from','to'=>'Started to'];
 $departmentNames=array_column($departments,'name','id');$leaderNames=array_column($leaders,'full_name','id');
 $filterUrl=fn(array $values)=>'staff.php?'.http_build_query(array_filter($values,fn($v)=>$v!==''));
 page_start('Staff directory',$user);
-?><link rel="stylesheet" href="assets/css/staff-directory.css">
+?><link rel="stylesheet" href="assets/css/staff-directory.css?v=20261029">
 <div class="staff-directory">
 <div class="section-head"><div><h2>Find an employee</h2><p class="muted">Search your staff, check their team and status, or open a profile for full details.</p></div><div class="actions"><?php if(user_can('manage_staff')):?><a class="button" href="employee-form.php">+ Add employee</a><?php endif;?></div></div>
 <?php error_notice($error);?>
 <section class="panel directory-search" aria-label="Find and filter employees">
 <form method="get" action="staff.php">
-<input type="hidden" name="status" value="<?=e($filters['status'])?>">
+<input type="hidden" name="status" value="<?=e($filters['status'])?>"><input type="hidden" name="department_id" value="<?=e($filters['department_id'])?>">
 <div class="directory-primary-filters">
 <label>Search employees<input type="search" name="q" placeholder="Enter a name, employee code or job title" value="<?=e($filters['q'])?>"></label>
-<label>Department<select name="department_id"><option value="">All departments</option><?php options($departments,$filters['department_id']);?></select></label>
+<label>Role<select name="position"><option value="">All roles</option><?php foreach($positions as $position):?><option value="<?=e($position['position'])?>" <?=$filters['position']===$position['position']?'selected':''?>><?=e($position['position'])?></option><?php endforeach;?></select></label>
 <label>Team leader<select name="tl_id"><option value="">All team leaders</option><?php options($leaders,$filters['tl_id'],'full_name');?></select></label>
 <button class="button" type="submit">Search</button>
 </div>
@@ -46,5 +47,5 @@ page_start('Staff directory',$user);
 <td data-label="Status"><span class="badge <?=e($row['employment_status'])?>"><?=e(STAFF_STATUSES[$row['employment_status']])?></span></td>
 <td class="directory-profile"><a class="button button-secondary" href="employee.php?id=<?=(int)$row['id']?>" aria-label="<?=e('View profile for '.$row['full_name'])?>">View profile <span aria-hidden="true">&rarr;</span></a></td>
 </tr><?php endforeach;?></tbody></table></div>
-<div class="directory-list-note">Open a profile for shift schedules, start and exit dates, and staff history.</div><?php if($total>25)pagination($total,$page);?>
+<div class="directory-list-note">Open a profile for shift schedules, start and exit dates<?=in_array($user['role_slug'],['super-admin','team-leader'],true)?', and staff history':''?>.</div><?php if($total>25)pagination($total,$page);?>
 <?php else:?><div class="directory-empty"><h3><?=$hasFilters?'No employees match your filters':'No employees yet'?></h3><p><?=$hasFilters?'Check the spelling or clear your filters to see all staff.':'Add your first employee to keep their details, team and history in one place.'?></p><?php if($hasFilters):?><a class="button button-secondary" href="staff.php">Clear filters</a><?php elseif(user_can('manage_staff')):?><a class="button" href="employee-form.php">Add your first employee</a><?php endif;?></div><?php endif;?></section></div><?php page_end();
